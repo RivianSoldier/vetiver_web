@@ -8,15 +8,16 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useState, useTransition } from "react";
 import Image from "next/image";
+import { Mail, Lock, Loader2Icon } from "lucide-react";
+import Link from "next/link";
+import InputPassword from "@/components/ui/input-password";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -30,20 +31,22 @@ const formSchema = z.object({
 interface InputFieldProps {
   control: any;
   name: string;
-  label: string;
   type: string;
   placeholder: string;
-  description: string;
+  disabled: boolean;
+}
+
+interface PasswordFieldProps {
+  control: any;
+  name: string;
   disabled: boolean;
 }
 
 function InputField({
   control,
   name,
-  label,
   type,
   placeholder,
-  description,
   disabled,
 }: InputFieldProps) {
   return (
@@ -51,10 +54,10 @@ function InputField({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem>
-          <FormLabel>{label}</FormLabel>
+        <FormItem className="w-full">
           <FormControl>
             <Input
+              className="h-12 w-full rounded-sm"
               id={name}
               type={type}
               placeholder={placeholder}
@@ -62,7 +65,28 @@ function InputField({
               {...field}
             />
           </FormControl>
-          <FormDescription>{description}</FormDescription>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+function InputPasswordField({ control, name, disabled }: PasswordFieldProps) {
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="w-full">
+          <FormControl>
+            <InputPassword
+              className="h-12 w-full rounded-sm"
+              id={name}
+              disabled={disabled}
+              {...field}
+            />
+          </FormControl>
           <FormMessage />
         </FormItem>
       )}
@@ -86,8 +110,13 @@ function SubmitButton({
   onClick,
 }: SubmitButtonProps) {
   return (
-    <Button type="submit" disabled={disabled} onClick={onClick}>
-      {isPending ? loadingLabel : label}
+    <Button
+      className="h-14 w-40 rounded-full bg-gradient-to-r from-[#45BF55] to-[#008D80] text-black font-poppins font-bold text-md cursor-pointer transition-all duration-300 ease-in-out hover:scale-102 hover:brightness-110"
+      type="submit"
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {isPending ? <Loader2Icon className="animate-spin " /> : label}
     </Button>
   );
 }
@@ -98,7 +127,7 @@ interface HeaderProps {
 
 function Header({ text }: HeaderProps) {
   return (
-    <h2 className="text-2xl font-bold text-center text-white font-poppins relative z-10">
+    <h2 className="text-2xl font-bold text-center text-white font-poppins relative z-10 sm:text-3xl">
       {text}
     </h2>
   );
@@ -118,7 +147,7 @@ export default function LoginPage() {
   });
 
   const handleSubmit = async (
-    action: (formData: FormData) => Promise<void>,
+    action: (formData: FormData) => Promise<void | { error: string | null }>,
     values: z.infer<typeof formSchema>,
     startTransition: (callback: () => Promise<void>) => void
   ) => {
@@ -129,7 +158,11 @@ export default function LoginPage() {
 
     startTransition(async () => {
       try {
-        await action(formData);
+        const result = await action(formData);
+
+        if (result && result.error) {
+          setError(result.error);
+        }
       } catch (err) {
         setError("An unexpected error occurred. Please try again.");
       }
@@ -139,8 +172,8 @@ export default function LoginPage() {
   const isAnyPending = isLoginPending || isSignupPending;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#0d0d0d] static">
-      <div className="absolute top-0 flex flex-col w-full h-[300px] bg-gradient-to-b from-[#45BF55] to-[#008D80] justify-start items-center">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#0d0d0d]">
+      <div className="absolute top-0 flex flex-col w-full h-[37%] bg-gradient-to-b from-[#45BF55] to-[#008D80] justify-start items-center">
         <Image
           className="mt-10"
           src="/logo_text.svg"
@@ -148,64 +181,81 @@ export default function LoginPage() {
           width={120}
           height={120}
         />
-        <h1 className="text-3xl font-bold font-poppins text-[#0d0d0d]">
+        <h1 className="text-3xl font-bold font-poppins text-[#0d0d0d] sm:text-4xl">
           Vetiver
         </h1>
       </div>
-      <div className="absolute top-[230px] flex flex-col items-center justify-center h-fit p-6 gap-6 w-[80%] max-w-md mx-auto bg-[#0d0d0d] rounded-sm">
+      <div className="absolute top-[24%] flex flex-col items-center justify-center w-[94%] mx-auto bg-[#0d0d0d] rounded-sm p-4 sm:p-6 gap-4 sm:gap-6 sm:top-[28%] md:w-1/2 md:max-w-[800px]">
         <div className="absolute inset-0 rounded-sm bg-gradient-to-b from-[#45BF55] to-[#008D80] p-[2px]">
           <div className="h-full w-full bg-[#0d0d0d] rounded-sm"></div>
         </div>
-        <Header text="Bem vindo de volta!" />
-        <Form {...form}>
-          <form className="space-y-6 w-full relative z-10">
-            <InputField
-              control={form.control}
-              name="email"
-              label="Email"
-              type="email"
-              placeholder="Enter your email"
-              description="This is the email address you'll use to log in."
-              disabled={isAnyPending}
-            />
-            <InputField
-              control={form.control}
-              name="password"
-              label="Password"
-              type="password"
-              placeholder="Enter your password"
-              description="Password must be at least 6 characters long."
-              disabled={isAnyPending}
-            />
-            {error && (
-              <div className="text-red-500 text-sm text-center">{error}</div>
-            )}
-            <div className="flex gap-4">
-              <SubmitButton
-                label="Log in"
-                loadingLabel="Logging in..."
-                isPending={isLoginPending}
-                disabled={isAnyPending}
-                onClick={() =>
-                  form.handleSubmit((values) =>
-                    handleSubmit(login, values, startLoginTransition)
-                  )()
-                }
-              />
-              <SubmitButton
-                label="Sign up"
-                loadingLabel="Signing up..."
-                isPending={isSignupPending}
-                disabled={isAnyPending}
-                onClick={() =>
-                  form.handleSubmit((values) =>
-                    handleSubmit(signup, values, startSignupTransition)
-                  )()
-                }
-              />
-            </div>
-          </form>
-        </Form>
+        <div className="flex flex-col items-center justify-evenly z-10 w-full py-16 gap-y-16">
+          <div>
+            <Header text="Bem vindo!" />
+            <p className="text-sm text-center font-nunito font-thin text-white pt-2 sm:text-base">
+              Entre ou crie uma conta para continuar
+            </p>
+          </div>
+          <Form {...form}>
+            <form className="space-y-6 w-full relative z-10 flex flex-col items-center justify-center">
+              <div className="flex flex-row justify-center items-center gap-2 sm:gap-3 w-full max-w-lg">
+                <Mail className="text-[#A6A6A6] w-5 h-5 sm:w-6 sm:h-6" />
+                <InputField
+                  control={form.control}
+                  name="email"
+                  type="email"
+                  placeholder="Email"
+                  disabled={isAnyPending}
+                />
+              </div>
+              <div className="flex flex-row justify-center items-center gap-2 sm:gap-3 w-full max-w-lg">
+                <Lock className="text-[#A6A6A6] w-5 h-5 sm:w-6 sm:h-6" />
+                <InputPasswordField
+                  control={form.control}
+                  name="password"
+                  disabled={isAnyPending}
+                />
+              </div>
+              <div className="flex justify-end w-full max-w-lg">
+                <Link
+                  href="/forgot-password"
+                  className="font-nunito text-sm bg-linear-to-r from-[#45BF55] to-[#008D80] inline-block text-transparent bg-clip-text antialiased hover:opacity-80"
+                >
+                  Esqueceu a senha?
+                </Link>
+              </div>
+              {error && (
+                <div className="text-[#F22742] text-sm text-center sm:text-base">
+                  {error}
+                </div>
+              )}
+              <div className="flex mt-10 gap-4 justify-center">
+                <SubmitButton
+                  label="Entrar"
+                  loadingLabel="Fazendo login..."
+                  isPending={isLoginPending}
+                  disabled={isAnyPending}
+                  onClick={() =>
+                    form.handleSubmit((values) =>
+                      handleSubmit(login, values, startLoginTransition)
+                    )()
+                  }
+                />
+                <SubmitButton
+                  label="Criar conta"
+                  loadingLabel="Criando conta..."
+                  isPending={isSignupPending}
+                  disabled={isAnyPending}
+                  onClick={() =>
+                    form.handleSubmit((values) =>
+                      handleSubmit(signup, values, startSignupTransition)
+                    )()
+                  }
+                />
+              </div>
+            </form>
+          </Form>
+        </div>
       </div>
     </div>
   );
