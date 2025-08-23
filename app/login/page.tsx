@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState, useTransition } from "react";
 import Image from "next/image";
-import { Mail, Lock, Loader2Icon } from "lucide-react";
+import { Mail, Lock, Loader2Icon, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import InputPassword from "@/components/ui/input-password";
 
@@ -104,7 +104,7 @@ interface SubmitButtonProps {
   onClick: () => void;
 }
 
-function SubmitButton({
+export function SubmitButton({
   label,
   isPending,
   disabled,
@@ -112,12 +112,12 @@ function SubmitButton({
 }: SubmitButtonProps) {
   return (
     <Button
-      className="h-14 w-40 rounded-full bg-gradient-to-r from-[#45BF55] to-[#008D80] text-black font-poppins font-bold text-md cursor-pointer transition-all duration-300 ease-in-out hover:scale-102 hover:brightness-110"
+      className="h-14 w-32 sm:w-36 md:w-40 rounded-full flex items-center justify-center bg-gradient-to-r from-[#45BF55] to-[#008D80] text-black font-poppins font-bold text-md cursor-pointer transition-all duration-300 ease-in-out hover:scale-102 hover:brightness-110"
       type="submit"
-      disabled={disabled}
+      disabled={disabled || isPending}
       onClick={onClick}
     >
-      {isPending ? <Loader2Icon className="animate-spin " /> : label}
+      {isPending ? <Loader2Icon className="animate-spin" /> : label}
     </Button>
   );
 }
@@ -173,21 +173,30 @@ export default function LoginPage() {
   const isAnyPending = isLoginPending || isSignupPending;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#0d0d0d]">
+    <div className="flex flex-col items-center justify-center min-h-screen">
       <div className="absolute top-0 flex flex-col w-full h-[37%] bg-gradient-to-b from-[#45BF55] to-[#008D80] justify-start items-center">
-        <Image
-          className="mt-10"
-          src="/logo_text.svg"
-          alt="Logo"
-          width={120}
-          height={120}
-        />
-        <h1 className="text-3xl font-bold font-poppins text-[#0d0d0d] sm:text-4xl">
+        <Link href="/">
+          <Image
+            className="mt-10 w-14 h-14 cursor-pointer sm:w-20 sm:h-20 md:w-32 md:h-32"
+            src="/logo_text.svg"
+            alt="Logo"
+            width={120}
+            height={120}
+            priority
+          />
+        </Link>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold font-poppins text-[#0d0d0d]">
           Vetiver
         </h1>
       </div>
-      <div className="absolute top-[24%] flex flex-col items-center justify-center w-[94%] mx-auto bg-[#0d0d0d] rounded-sm p-4 sm:p-6 gap-4 sm:gap-6 sm:top-[28%] md:w-1/2 md:max-w-[800px]">
-        <div className="absolute inset-0 rounded-sm bg-gradient-to-b from-[#45BF55] to-[#008D80] p-[2px]">
+      <div className="absolute top-[24%] flex flex-col items-center justify-center w-[94%] mx-auto bg-[#0d0d0d] rounded-sm p-4 sm:p-6 gap-4 sm:gap-6 sm:top-[28%] md:w-1/2 md:max-w-[800px] ">
+        <div className="absolute inset-0 rounded-sm bg-gradient-to-b from-[#45BF55] to-[#008D80] p-[2px] mb-4 sm:mb-6 md:mb-8">
+          <Link
+            className="absolute top-4 left-4 w-7 h-7 text-white cursor-pointer"
+            href="/"
+          >
+            <ChevronLeft className="w-full h-full" />
+          </Link>
           <div className="h-full w-full bg-[#0d0d0d] rounded-sm"></div>
         </div>
         <div className="flex flex-col items-center justify-evenly z-10 w-full py-16 gap-y-16">
@@ -230,7 +239,7 @@ export default function LoginPage() {
                   {error}
                 </div>
               )}
-              <div className="flex mt-10 gap-4 justify-center">
+              <div className="flex mt-6 sm:mt-8 md:mt-10 gap-4 justify-center">
                 <SubmitButton
                   label="Entrar"
                   loadingLabel="Fazendo login..."

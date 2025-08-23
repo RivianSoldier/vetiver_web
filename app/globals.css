@@ -81,6 +81,10 @@
   --font-nunito: "Nunito", sans-serif;
 }
 
+body {
+  background-color: #0d0d0d;
+}
+
 .font-poppins {
   font-family: var(--font-poppins), sans-serif;
 }
