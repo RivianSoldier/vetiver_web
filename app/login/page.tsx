@@ -106,7 +106,6 @@ interface SubmitButtonProps {
 
 function SubmitButton({
   label,
-  loadingLabel,
   isPending,
   disabled,
   onClick,

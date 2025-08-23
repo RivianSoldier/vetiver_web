@@ -8,6 +8,11 @@ export default async function PrivatePage() {
 
   async function signOut() {
     const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.log("Error signing out:", error.message);
+    } else {
+      redirect("/login");
+    }
   }
 
   const { data, error } = await supabase.auth.getUser();
