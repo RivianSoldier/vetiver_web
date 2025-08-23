@@ -7,7 +7,6 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-// Define the props type using React's built-in types
 export interface PasswordInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {}
 

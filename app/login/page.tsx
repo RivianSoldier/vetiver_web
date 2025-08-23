@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Control } from "react-hook-form";
 import { z } from "zod";
 import { login, signup } from "./actions";
 import { Button } from "@/components/ui/button";
@@ -28,17 +28,19 @@ const formSchema = z.object({
   }),
 });
 
+type FormSchemaType = z.infer<typeof formSchema>;
+
 interface InputFieldProps {
-  control: any;
-  name: string;
+  control: Control<FormSchemaType>;
+  name: "email" | "password";
   type: string;
   placeholder: string;
   disabled: boolean;
 }
 
 interface PasswordFieldProps {
-  control: any;
-  name: string;
+  control: Control<FormSchemaType>;
+  name: "password";
   disabled: boolean;
 }
 
