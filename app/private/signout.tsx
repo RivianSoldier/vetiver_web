@@ -18,7 +18,12 @@ export default function SignOut() {
 
   return (
     <div>
-      <button onClick={signOut}>Sign out</button>
+      <p
+        className="text-white font-nunito text-sm p-0 m-0 text-center cursor-pointer"
+        onClick={signOut}
+      >
+        Sair
+      </p>
     </div>
   );
 }
