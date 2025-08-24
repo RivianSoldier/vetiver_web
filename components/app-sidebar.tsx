@@ -38,7 +38,11 @@ const items: {
   },
 ];
 
-export async function AppSidebar() {
+type AppSidebarProps = {
+  variant: "sidebar" | "floating" | "inset";
+};
+
+export async function AppSidebar({ variant }: AppSidebarProps) {
   const headerList = headers();
   const pathname = (await headerList).get("x-current-path");
 
@@ -49,7 +53,7 @@ export async function AppSidebar() {
   }
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" variant={variant}>
       <SidebarHeader>
         <AppSidebarHeader />
       </SidebarHeader>

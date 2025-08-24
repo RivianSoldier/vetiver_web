@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import SignOut from "./signout";
-
+import { FiltersHeader } from "@/components/filters-header";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function PrivatePage() {
@@ -12,9 +12,9 @@ export default async function PrivatePage() {
   }
 
   return (
-    <div>
-      <p className="text-white">Hello {data.user.email}</p>
-      <SignOut></SignOut>
-    </div>
+    <>
+      <FiltersHeader />
+      <div className="bg-[#262626] flex h-screen"></div>
+    </>
   );
 }

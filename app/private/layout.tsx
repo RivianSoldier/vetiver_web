@@ -1,4 +1,8 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarInset,
+} from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 
 export default function PrivateLayout({
@@ -8,11 +12,12 @@ export default function PrivateLayout({
 }) {
   return (
     <SidebarProvider>
-      <AppSidebar />
-      <main>
-        <SidebarTrigger />
-        {children}
-      </main>
+      <AppSidebar variant="inset" />
+      <SidebarInset className="mt-0">
+        <main>
+          {children}
+        </main>
+      </SidebarInset>
     </SidebarProvider>
   );
 }
