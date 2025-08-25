@@ -27,7 +27,10 @@ export function AppSidebarFooter({ user }: { user: User }) {
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger className="hover:bg-[#404040]" asChild>
+          <DropdownMenuTrigger
+            className="hover:bg-[#404040] cursor-pointer"
+            asChild
+          >
             <SidebarMenuButton className="mb-2 h-12 w-full justify-start rounded-md bg-[#404040] data-[collapsed=true]:justify-center data-[collapsed=true]:px-0">
               <div
                 className={cn(
