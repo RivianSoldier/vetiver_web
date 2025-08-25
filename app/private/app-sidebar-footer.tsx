@@ -31,7 +31,7 @@ export function AppSidebarFooter({ user }: { user: User }) {
             className="hover:bg-[#404040] cursor-pointer"
             asChild
           >
-            <SidebarMenuButton className="mb-2 h-12 w-full justify-start rounded-md bg-[#404040] data-[collapsed=true]:justify-center data-[collapsed=true]:px-0">
+            <SidebarMenuButton className="mb-2 h-12 w-full justify-start rounded-md  data-[collapsed=true]:justify-center data-[collapsed=true]:px-0">
               <div
                 className={cn(
                   "flex flex-shrink-0 items-center justify-center rounded-full bg-purple-900 font-poppins font-bold text-white transition-all duration-200",

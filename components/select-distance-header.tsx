@@ -18,10 +18,10 @@ const distancias = [
   { value: "50+", label: "50+ km" },
 ];
 
-export function SelectHeader() {
+export function SelectDistanceHeader() {
   return (
     <Select>
-      <SelectTrigger className="w-[180px] text-sm font-nunito font-bold cursor-pointer">
+      <SelectTrigger className="w-fit text-sm font-nunito font-bold cursor-pointer">
         <SelectValue placeholder="Distância (Km)" />
       </SelectTrigger>
       <SelectContent className="bg-[#262626] border-2 border-[#24A769]">

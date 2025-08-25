@@ -4,7 +4,7 @@ import { useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { HeaderButton } from "./header-button";
 import { Waypoints } from "lucide-react";
-import { SelectHeader } from "./select-distance-header";
+import { SelectDistanceHeader } from "./select-distance-header";
 import { SelectClassHeader } from "./select-class-header";
 import { SelectedClasses } from "./selected-classes";
 
@@ -46,21 +46,21 @@ export function FiltersHeader() {
   };
 
   return (
-    <div className="flex items-center justify-between h-32 px-4">
+    <div className="flex items-start pt-3 sm:pt-0 sm:items-center justify-between h-32 px-4">
       <div className="flex flex-col gap-2">
-        <div className="flex flex-row items-center gap-3">
+        <div className="flex flex-row items-end gap-3">
           <SidebarTrigger className="text-white w-8 h-8" />
           <div className="w-[2px] h-10 bg-[#262626]" />
-
-          <SelectHeader />
-          <SelectClassHeader
-            key={selectKey}
-            onClassSelect={handleAddClass}
-            selectedClasses={selectedClasses}
-          />
+          <div className="flex flex-col sm:flex-row md:items-center gap-3">
+            <SelectDistanceHeader />
+            <SelectClassHeader
+              key={selectKey}
+              onClassSelect={handleAddClass}
+              selectedClasses={selectedClasses}
+            />
+          </div>
         </div>
-
-        <div className="flex flex-row items-center gap-2 flex-wrap">
+        <div className="hidden sm:flex flex-row items-center">
           <SelectedClasses
             selectedClasses={selectedClasses}
             onRemoveClass={handleRemoveClass}
@@ -68,12 +68,20 @@ export function FiltersHeader() {
           />
         </div>
       </div>
-      <div className="flex flex-row justify-between items-center gap-5">
+
+      <div className="flex flex-col justify-center items-end gap-2 sm:gap-5">
         <HeaderButton
           mode="filled"
           buttonIcon={<Waypoints />}
           text="Planejar Rota"
         />
+        <div className="sm:hidden ">
+          <SelectedClasses
+            selectedClasses={selectedClasses}
+            onRemoveClass={handleRemoveClass}
+            onClearAll={handleClearAllClasses}
+          />
+        </div>
         {/* <HeaderButton
           mode="outlined"
           buttonIcon={
