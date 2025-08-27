@@ -10,11 +10,11 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { MapPinned, ListChecks, ClipboardClock } from "lucide-react";
+import { MapPinned, BookAlert, ClipboardClock } from "lucide-react";
 
 const iconMap = {
   map: MapPinned,
-  list: ListChecks,
+  info: BookAlert,
   history: ClipboardClock,
 };
 
@@ -49,7 +49,7 @@ export function AppSidebarNav({ items, pathname }: AppSidebarNavProps) {
               <SidebarMenuButton
                 className={cn(
                   "h-12 w-full py-0 flex justify-start rounded-md data-[collapsed=true]:justify-start data-[collapsed=true]:mx-0",
-                  !isActive && "hover:bg-[#404040]" 
+                  !isActive && "hover:bg-[#404040]"
                 )}
                 asChild
                 tooltip={item.title}

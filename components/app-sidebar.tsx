@@ -4,10 +4,7 @@ import {
   SidebarHeader,
   SidebarFooter,
   SidebarRail,
-  SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import Image from "next/image";
-import { MapPinned, ListChecks, ClipboardClock } from "lucide-react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
@@ -19,7 +16,7 @@ import { AppSidebarHeader } from "@/app/private/app-sidebar-header";
 const items: {
   title: string;
   url: string;
-  icon: "map" | "list" | "history";
+  icon: "map" | "info" | "history";
 }[] = [
   {
     title: "Mapa",
@@ -27,9 +24,9 @@ const items: {
     icon: "map",
   },
   {
-    title: "Lista",
-    url: "/private/lista",
-    icon: "list",
+    title: "Guia de uso",
+    url: "/private/guia",
+    icon: "info",
   },
   {
     title: "Histórico",

@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Control } from "react-hook-form";
 import { z } from "zod";
-import { login, signup } from "./actions";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -122,35 +121,6 @@ export function SubmitButton({
   );
 }
 
-interface HeaderButtonProps {
-  isPending: boolean;
-  disabled: boolean;
-  onClick: () => void;
-}
-
-export function HeaderButton({
-  isPending,
-  disabled,
-  onClick,
-}: HeaderButtonProps) {
-  return (
-    <div className="h-14 w-32 sm:w-36 md:w-40 flex justify-center items-center rounded-full bg-gradient-to-r from-[#008D80] to-[#45BF55] transition-all duration-300 ease-in-out hover:scale-102 hover:brightness-110 cursor-pointer">
-      <Button
-        className="h-[calc(100%-4px)] w-[calc(100%-4px)] bg-[#0d0d0d] rounded-full hover:bg-[#262626] transition-all duration-300 ease-in-out cursor-pointer"
-        disabled={disabled || isPending}
-        onClick={onClick}
-      >
-        {isPending ? (
-          <Loader2Icon className="animate-spin text-[#008D80]" />
-        ) : (
-          <span className="flex items-center bg-gradient-to-r from-[#008D80] to-[#45BF55] bg-clip-text text-transparent font-poppins font-bold text-md">
-            CRIAR CONTA
-          </span>
-        )}
-      </Button>
-    </div>
-  );
-}
 interface HeaderProps {
   text: string;
 }
@@ -206,7 +176,7 @@ export default function LoginPage() {
       <div className="absolute top-0 flex flex-col w-full h-[37%] bg-gradient-to-b from-[#45BF55] to-[#008D80] justify-start items-center">
         <Link href="/">
           <Image
-            className="mt-10 w-14 h-14 cursor-pointer sm:w-20 sm:h-20 md:w-32 md:h-32"
+            className="mt-10 w-14 h-14 cursor-pointer sm:w-20 sm:h-20 md:w-30 md:h-30"
             src="/logo_text.svg"
             alt="Logo"
             width={120}
@@ -222,7 +192,7 @@ export default function LoginPage() {
         <div className="absolute inset-0 rounded-sm bg-gradient-to-b from-[#45BF55] to-[#008D80] p-[2px] mb-4 sm:mb-6 md:mb-8">
           <Link
             className="absolute top-4 left-4 w-7 h-7 text-white cursor-pointer"
-            href="/"
+            href="/login"
           >
             <ChevronLeft className="w-full h-full" />
           </Link>
@@ -230,66 +200,31 @@ export default function LoginPage() {
         </div>
         <div className="flex flex-col items-center justify-evenly z-10 w-full py-16 gap-y-16">
           <div>
-            <Header text="Bem vindo!" />
+            <Header text="Confirmar e-mail" />
             <p className="text-sm text-center font-nunito font-thin text-white pt-2 sm:text-base">
-              Entre ou crie uma conta para continuar
+              Verifique seu e-mail
             </p>
           </div>
           <Form {...form}>
             <form className="space-y-6 w-full relative z-10 flex flex-col items-center justify-center">
               <div className="flex flex-row justify-center items-center gap-2 sm:gap-3 w-full max-w-lg">
-                <Mail className="text-[#A6A6A6] w-5 h-5 sm:w-6 sm:h-6" />
-                <InputField
-                  control={form.control}
-                  name="email"
-                  type="email"
-                  placeholder="Email"
-                  disabled={isAnyPending}
+                <Mail
+                  strokeWidth={1}
+                  className="text-white w-12 h-12 sm:w-24 sm:h-24"
                 />
               </div>
-              <div className="flex flex-row justify-center items-center gap-2 sm:gap-3 w-full max-w-lg">
-                <Lock className="text-[#A6A6A6] w-5 h-5 sm:w-6 sm:h-6" />
-                <InputPasswordField
-                  control={form.control}
-                  name="password"
-                  disabled={isAnyPending}
-                />
+              <div>
+                <p className="font-nunito text-lg text-center text-white text-wrap">
+                  Um link de confirmação foi enviado para o seu e-mail.
+                </p>
               </div>
-              <div className="flex justify-end w-full max-w-lg">
-                <Link
-                  href="/forgot-password"
-                  className="font-nunito text-sm bg-linear-to-r from-[#45BF55] to-[#008D80] inline-block text-transparent bg-clip-text antialiased hover:opacity-80"
-                >
-                  Esqueceu a senha?
-                </Link>
-              </div>
+
               {error && (
                 <div className="text-[#F22742] text-sm text-center sm:text-base">
                   {error}
                 </div>
               )}
-              <div className="flex mt-6 sm:mt-8 md:mt-10 gap-4 justify-center">
-                <SubmitButton
-                  label="ENTRAR"
-                  loadingLabel="Fazendo login..."
-                  isPending={isLoginPending}
-                  disabled={isAnyPending}
-                  onClick={() =>
-                    form.handleSubmit((values) =>
-                      handleSubmit(login, values, startLoginTransition)
-                    )()
-                  }
-                />
-                <HeaderButton
-                  isPending={isSignupPending}
-                  disabled={isAnyPending}
-                  onClick={() =>
-                    form.handleSubmit((values) =>
-                      handleSubmit(signup, values, startSignupTransition)
-                    )()
-                  }
-                />
-              </div>
+              <div className="flex mt-6 sm:mt-8 md:mt-10 gap-4 justify-center"></div>
             </form>
           </Form>
         </div>

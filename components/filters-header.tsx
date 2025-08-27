@@ -7,6 +7,7 @@ import { Waypoints } from "lucide-react";
 import { SelectDistanceHeader } from "./select-distance-header";
 import { SelectClassHeader } from "./select-class-header";
 import { SelectedClasses } from "./selected-classes";
+import Image from "next/image";
 
 const ALL_CLASSES = [
   { value: "class1", label: "Classe 1" },
@@ -87,8 +88,9 @@ export function FiltersHeader() {
           buttonIcon={
             <Image width={24} height={24} src="/eye.png" alt="Eye Icon" />
           }
+          text="Visualizar no Mapa"
         />
-        <HeaderButton mode="maps" /> */}
+        <HeaderButton mode="maps" text="Visualizar no Mapa" /> */}
       </div>
     </div>
   );
