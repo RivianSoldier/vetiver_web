@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import SignOut from "./signout";
 import { FiltersHeader } from "@/components/filters-header";
 import { createClient } from "@/utils/supabase/server";
+import MapComponent from "./map";
 
 export default async function PrivatePage() {
   const supabase = await createClient();
@@ -14,7 +15,9 @@ export default async function PrivatePage() {
   return (
     <>
       <FiltersHeader />
-      <div className="bg-[#262626] flex h-screen"></div>
+      <div className="bg-[#262626] flex h-screen">
+        <MapComponent />
+      </div>
     </>
   );
 }
