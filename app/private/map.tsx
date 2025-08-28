@@ -1,14 +1,27 @@
-// app/private/map.tsx
 "use client";
 
+import { useState, useEffect } from "react";
 import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 
 export default function MapComponent() {
-  const position = { lat: -23.6225, lng: -46.5398 };
-  const DARK_MODE_MAP_ID = "93fab46ea0e9b871edd897b3";
+  const defaultPosition = { lat: -23.648441, lng: -46.573043 };
+  const [position, setPosition] = useState(defaultPosition);
 
-  // --- ADD THIS LINE FOR DEBUGGING ---
-  console.log("API Key Loaded:", process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (location) => {
+          setPosition({
+            lat: location.coords.latitude,
+            lng: location.coords.longitude,
+          });
+        },
+        (error) => {
+          console.warn("Geolocation error:", error);
+        }
+      );
+    }
+  }, []);
 
   if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
     throw new Error("Google Maps API key is missing.");
@@ -16,8 +29,12 @@ export default function MapComponent() {
 
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
-      <div style={{ height: "100%", width: "100%" }}>
-        <Map defaultZoom={13} defaultCenter={position} mapId={DARK_MODE_MAP_ID}>
+      <div className="w-full h-full">
+        <Map
+          defaultZoom={15}
+          defaultCenter={position}
+          mapId={process.env.NEXT_PUBLIC_DARK_MODE_MAP_ID}
+        >
           <AdvancedMarker position={position} />
         </Map>
       </div>

@@ -13,11 +13,11 @@ export default async function PrivatePage() {
   }
 
   return (
-    <>
+    <div className="h-screen flex flex-col">
       <FiltersHeader />
-      <div className="bg-[#262626] flex h-screen">
+      <div className="bg-[#262626] flex flex-1">
         <MapComponent />
       </div>
-    </>
+    </div>
   );
 }
