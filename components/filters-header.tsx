@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { HeaderButton } from "./header-button";
-import { Waypoints } from "lucide-react";
+import { Waypoints, MoveRight, X } from "lucide-react";
 import { SelectDistanceHeader } from "./select-distance-header";
 import { SelectClassHeader } from "./select-class-header";
 import { SelectedClasses } from "./selected-classes";
@@ -18,11 +19,45 @@ const ALL_CLASSES = [
 ];
 
 export function FiltersHeader() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const isPlanning = searchParams.get("planning") === "true";
+  const isCalculating = searchParams.get("calculating") === "true";
+
   const [selectedClasses, setSelectedClasses] = useState<
     { value: string; label: string }[]
   >([]);
   const [selectKey, setSelectKey] = useState(Date.now());
 
+  const handlePlanningToggle = () => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+
+    if (isPlanning || isCalculating) {
+      // Exit planning/calculating mode
+      current.delete("planning");
+      current.delete("calculating");
+    } else {
+      // Enter planning mode
+      current.set("planning", "true");
+    }
+
+    const search = current.toString();
+    const query = search ? `?${search}` : "";
+    router.push(`/private${query}`);
+  };
+
+  const handleCalculateRoute = () => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    current.set("calculating", "true");
+    current.delete("planning"); // Remove planning when calculating
+
+    const search = current.toString();
+    const query = search ? `?${search}` : "";
+    router.push(`/private${query}`);
+
+    // Placeholder for route calculation logic
+    console.log("Calculating route...");
+  };
   const handleAddClass = (classValue: string) => {
     if (selectedClasses.some((c) => c.value === classValue)) {
       return;
@@ -71,11 +106,49 @@ export function FiltersHeader() {
       </div>
 
       <div className="flex flex-col justify-center items-end gap-2 sm:gap-5">
-        <HeaderButton
-          mode="filled"
-          buttonIcon={<Waypoints />}
-          text="Planejar Rota"
-        />
+        <div className="flex gap-2 max-w-full">
+          {isCalculating ? (
+            <div className="flex flex-row gap-2 w-full">
+              <HeaderButton
+                mode="outlined"
+                buttonIcon={
+                  <Image width={24} height={24} src="/X.png" alt="Eye Icon" />
+                }
+                text="Cancelar"
+                onClick={handlePlanningToggle}
+              />
+              <HeaderButton
+                mode="maps"
+                text="Ver rota no Maps"
+                onClick={() => console.log("Opening Google Maps...")}
+              />
+            </div>
+          ) : isPlanning ? (
+            <div className="flex flex-row gap-2 w-full">
+              <HeaderButton
+                mode="outlined"
+                buttonIcon={
+                  <Image width={24} height={24} src="/eye.png" alt="Eye Icon" />
+                }
+                text="Visualizar no Mapa"
+                onClick={handlePlanningToggle}
+              />
+              <HeaderButton
+                mode="filled"
+                buttonIcon={<MoveRight />}
+                text="Calcular Rota"
+                onClick={handleCalculateRoute}
+              />
+            </div>
+          ) : (
+            <HeaderButton
+              mode="filled"
+              buttonIcon={<Waypoints />}
+              text="Planejar Rota"
+              onClick={handlePlanningToggle}
+            />
+          )}
+        </div>
         <div className="sm:hidden ">
           <SelectedClasses
             selectedClasses={selectedClasses}

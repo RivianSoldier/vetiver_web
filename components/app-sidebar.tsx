@@ -24,14 +24,14 @@ const items: {
     icon: "map",
   },
   {
-    title: "Guia de uso",
-    url: "/private/guia",
-    icon: "info",
-  },
-  {
     title: "Histórico",
     url: "/private/historico",
     icon: "history",
+  },
+  {
+    title: "Guia de uso",
+    url: "/private/guia",
+    icon: "info",
   },
 ];
 

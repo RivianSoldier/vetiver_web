@@ -194,6 +194,9 @@ export default function LoginPage() {
           setError(result.error);
         }
       } catch (err) {
+        if (err && typeof err === "object" && "digest" in err) {
+          return;
+        }
         setError("An unexpected error occurred. Please try again.");
       }
     });

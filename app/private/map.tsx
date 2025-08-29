@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MarkerLixo } from "@/components/marker-lixo";
 
-export default function MapComponent() {
+export default function MapComponent({ planejar }: { planejar: boolean }) {
   const defaultPosition = { lat: -23.648441, lng: -46.573043 };
   const testePosition = { lat: -23.647336, lng: -46.575399 };
   const [position, setPosition] = useState(defaultPosition);
@@ -42,7 +42,11 @@ export default function MapComponent() {
               <div className="w-5 h-5 bg-gradient-to-r from-[#45BF55] to-[#008D80] rounded-full border-2 border-white shadow-lg"></div>
             </div>
           </AdvancedMarker>
-          <MarkerLixo position={testePosition} quantidade={7} planejar={true} />
+          <MarkerLixo
+            position={testePosition}
+            quantidade={7}
+            planejar={planejar}
+          />
         </Map>
       </div>
     </APIProvider>

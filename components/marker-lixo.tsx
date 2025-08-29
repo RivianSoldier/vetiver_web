@@ -17,7 +17,6 @@ import {
   TableRow,
 } from "./ui/table";
 import { HeaderButton } from "./header-button";
-import { SquareArrowOutUpRight } from "lucide-react";
 
 export function MarkerLixo({
   position,
@@ -63,11 +62,11 @@ export function MarkerLixo({
       {showHoverCard && (
         <AdvancedMarker position={position}>
           <div
-            className="absolute bottom-12 left-1/2 transform -translate-x-1/2"
+            className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-in fade-in-50 zoom-in-50 duration-350"
             onMouseEnter={() => setShowHoverCard(true)}
             onMouseLeave={() => setShowHoverCard(false)}
           >
-            <div className="flex flex-col justify-around gap-3 items-center min-w-[340px] bg-[#262626] rounded-md p-3 shadow-md relative cursor-default">
+            <div className="flex flex-col justify-around gap-3 items-center min-w-[340px] bg-[#262626] rounded-md p-4 shadow-md relative cursor-default transition-all duration-200">
               <div className="flex flex-row justify-around items-start w-full gap-5">
                 <div>
                   <h3 className="font-bold text-white text-sm font-nunito mb-2">
