@@ -7,6 +7,17 @@ import {
 import Image from "next/image";
 import { Checkbox } from "./ui/checkbox";
 import { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./ui/table";
+import { HeaderButton } from "./header-button";
+import { SquareArrowOutUpRight } from "lucide-react";
 
 export function MarkerLixo({
   position,
@@ -56,26 +67,84 @@ export function MarkerLixo({
             onMouseEnter={() => setShowHoverCard(true)}
             onMouseLeave={() => setShowHoverCard(false)}
           >
-            <div className="bg-[#262626] rounded-md p-4 shadow-md min-w-48 relative cursor-pointer hover:bg-[#333333] transition-colors">
-              <h3 className="font-bold text-white font-poppins mb-2">
-                Informações
-              </h3>
-              <p className="text-white font-nunito text-sm">
-                Quantidade: {quantidade}
-              </p>
-              {planejar && (
-                <p className="text-green-400 text-xs font-nunito mt-1">
-                  ✓ Planejamento ativo
+            <div className="flex flex-col justify-around gap-3 items-center min-w-[340px] bg-[#262626] rounded-md p-3 shadow-md relative cursor-default">
+              <div className="flex flex-row justify-around items-start w-full gap-5">
+                <div>
+                  <h3 className="font-bold text-white text-sm font-nunito mb-2">
+                    Foto
+                  </h3>
+                  <Image
+                    className="h-[110px] w-[80px] object-cover rounded-md"
+                    width={80}
+                    height={110}
+                    src="/foto_example.png"
+                    alt="Foto Icon"
+                  />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white text-sm font-nunito mb-2">
+                    Classes
+                  </h3>
+                  <div className="rounded-md border border-[#404040]">
+                    <Table className="w-[182px]">
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="text-sm font-nunito p-1 border-r">
+                            Papelão
+                          </TableCell>
+                          <TableCell className="text-sm text-center font-nunito p-1">
+                            2
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="text-sm font-nunito p-1 border-r">
+                            Vidro
+                          </TableCell>
+                          <TableCell className="text-sm text-center font-nunito p-1">
+                            1
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="text-sm text-[#404040] font-nunito p-1 border-r">
+                            Metal
+                          </TableCell>
+                          <TableCell className="text-sm text-[#404040] text-center font-nunito p-1">
+                            0
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="text-sm text-[#404040] font-nunito p-1 border-r">
+                            Entulho
+                          </TableCell>
+                          <TableCell className="text-sm text-[#404040] text-center font-nunito p-1">
+                            0
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col w-full">
+                <p className="text-sm text-whitefont-nunito">Endereço</p>
+                <p className="text-sm text-[#a6a6a6] font-nunito">
+                  Rua Pereira Estéfano, 2400 - Jabaquara
                 </p>
+              </div>
+              <div className="flex flex-col w-full">
+                <p className="text-sm text-whitefont-nunito">Data</p>
+                <p className="text-sm text-[#a6a6a6] font-nunito">
+                  10/03/25 - 14:30
+                </p>
+              </div>
+              {planejar && (
+                <>
+                  <div className="flex flex-col w-full gap-2">
+                    <HeaderButton mode="filled" text="Confirmar coleta" />
+                    <HeaderButton mode="outlined-red" text="Não encontrado" />
+                  </div>
+                </>
               )}
-              <button
-                onClick={handleCardClick}
-                className="mt-2 text-[#45BF55] hover:text-[#008D80] font-nunito text-sm underline"
-              >
-                Ver detalhes
-              </button>
-              {/* Arrow pointing down */}
-              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#262626]"></div>
             </div>
           </div>
         </AdvancedMarker>
