@@ -47,7 +47,7 @@ export function FiltersHeader() {
   };
 
   return (
-    <div className="flex items-start pt-3 sm:pt-0 sm:items-center justify-between h-32 px-4">
+    <div className="flex items-start pt-3 sm:pt-0 sm:items-center justify-between h-28 sm:h-24 px-4">
       <div className="flex flex-col gap-2">
         <div className="flex flex-row items-end gap-3">
           <SidebarTrigger className="text-white w-8 h-8" />
