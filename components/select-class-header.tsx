@@ -1,4 +1,3 @@
-// src/components/select-class-header.tsx
 "use client";
 
 import * as React from "react";
@@ -20,7 +19,6 @@ const classes = [
   { value: "class5", label: "Classe 5" },
 ];
 
-// Define the component's props
 interface SelectClassHeaderProps {
   onClassSelect: (value: string) => void;
   selectedClasses: { value: string; label: string }[];
@@ -31,7 +29,6 @@ export function SelectClassHeader({
   selectedClasses,
 }: SelectClassHeaderProps) {
   return (
-    // The onValueChange event is used to notify the parent component of a selection.
     <Select onValueChange={onClassSelect}>
       <SelectTrigger className="text-sm font-nunito font-bold cursor-pointer">
         <SelectValue placeholder="Classe" />
@@ -44,7 +41,6 @@ export function SelectClassHeader({
               className="text-sm font-nunito cursor-pointer"
               key={classe.value}
               value={classe.value}
-              // Disable the option if it's already been selected
               disabled={selectedClasses.some(
                 (selected) => selected.value === classe.value
               )}

@@ -19,7 +19,6 @@ export default async function PrivatePage({
   const isPlanning = searchParams.planning === "true";
   const isCalculating = searchParams.calculating === "true";
 
-  // Only show checkboxes when in planning mode (not calculating)
   const showCheckboxes = isPlanning && !isCalculating;
 
   return (

@@ -33,11 +33,9 @@ export function FiltersHeader() {
     const current = new URLSearchParams(Array.from(searchParams.entries()));
 
     if (isPlanning || isCalculating) {
-      // Exit planning/calculating mode
       current.delete("planning");
       current.delete("calculating");
     } else {
-      // Enter planning mode
       current.set("planning", "true");
     }
 
@@ -49,13 +47,12 @@ export function FiltersHeader() {
   const handleCalculateRoute = () => {
     const current = new URLSearchParams(Array.from(searchParams.entries()));
     current.set("calculating", "true");
-    current.delete("planning"); // Remove planning when calculating
+    current.delete("planning");
 
     const search = current.toString();
     const query = search ? `?${search}` : "";
     router.push(`/private${query}`);
 
-    // Placeholder for route calculation logic
     console.log("Calculating route...");
   };
   const handleAddClass = (classValue: string) => {

@@ -1,8 +1,5 @@
 import {
-  APIProvider,
-  Map,
   AdvancedMarker,
-  InfoWindow,
 } from "@vis.gl/react-google-maps";
 import Image from "next/image";
 import { Checkbox } from "./ui/checkbox";
@@ -10,10 +7,7 @@ import { useState } from "react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableHead,
-  TableHeader,
   TableRow,
 } from "./ui/table";
 import { HeaderButton } from "./header-button";
@@ -30,12 +24,6 @@ export function MarkerLixo({
   isCheckbox?: boolean;
 }) {
   const [showHoverCard, setShowHoverCard] = useState(false);
-
-  const handleCardClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    // Add your click handler here
-    console.log("Card clicked!");
-  };
 
   return (
     <>
