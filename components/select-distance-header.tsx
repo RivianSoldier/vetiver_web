@@ -21,10 +21,10 @@ const distancias = [
 export function SelectDistanceHeader() {
   return (
     <Select>
-      <SelectTrigger className="w-fit text-sm font-nunito font-bold cursor-pointer">
-        <SelectValue placeholder="Distância (Km)" />
+      <SelectTrigger className="w-fit text-sm font-nunito font-bold cursor-pointer flex items-start h-full">
+        <SelectValue placeholder="Distância" />
       </SelectTrigger>
-      <SelectContent className="bg-[#262626] border-2 border-[#24A769]">
+      <SelectContent className="bg-[#262626] border-2 border-[#404040]">
         <SelectGroup>
           <SelectLabel className="text-sm font-nunito">Distâncias</SelectLabel>
           {distancias.map((distancia) => (

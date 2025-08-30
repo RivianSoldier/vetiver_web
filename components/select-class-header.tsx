@@ -36,7 +36,7 @@ export function SelectClassHeader({
       <SelectTrigger className="text-sm font-nunito font-bold cursor-pointer">
         <SelectValue placeholder="Classe" />
       </SelectTrigger>
-      <SelectContent className="bg-[#262626] border-2 border-[#24A769]">
+      <SelectContent className="bg-[#262626] border-2 border-[#404040]">
         <SelectGroup>
           <SelectLabel className="text-sm font-nunito">Classes</SelectLabel>
           {classes.map((classe) => (

@@ -22,10 +22,12 @@ export function MarkerLixo({
   position,
   quantidade,
   planejar = false,
+  isCheckbox = false,
 }: {
   position: google.maps.LatLngLiteral;
   quantidade: number;
   planejar?: boolean;
+  isCheckbox?: boolean;
 }) {
   const [showHoverCard, setShowHoverCard] = useState(false);
 
@@ -51,7 +53,7 @@ export function MarkerLixo({
             </div>
           </div>
           <Image width={40} height={40} src="/marker.svg" alt="Marker Icon" />
-          {planejar && (
+          {isCheckbox && (
             <div className="absolute w-5 h-5 bottom-[-8px] rounded-md right-[-4px] bg-[#0d0d0d] ">
               <Checkbox className="w-5 h-5 cursor-pointer" />
             </div>

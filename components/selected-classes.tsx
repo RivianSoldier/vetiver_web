@@ -27,7 +27,7 @@ export function SelectedClasses({
       <div className="flex items-center justify-between gap-2 bg-transparent text-white text-sm font-nunito font-semibold rounded-sm px-2 py-1 border-2 border-[#262626] cursor-default">
         <span>{`Classes (${count})`}</span>
         <button
-          onClick={onClearAll} // This button now clears all selections
+          onClick={onClearAll}
           className="text-white"
         >
           <X className="text-white size-4 cursor-pointer hover:text-[#F22742] transition-colors duration-200" />

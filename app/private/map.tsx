@@ -4,7 +4,13 @@ import { useState, useEffect } from "react";
 import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MarkerLixo } from "@/components/marker-lixo";
 
-export default function MapComponent({ planejar }: { planejar: boolean }) {
+export default function MapComponent({
+  planejar,
+  isCheckbox,
+}: {
+  planejar: boolean;
+  isCheckbox: boolean;
+}) {
   const defaultPosition = { lat: -23.648441, lng: -46.573043 };
   const testePosition = { lat: -23.647336, lng: -46.575399 };
   const [position, setPosition] = useState(defaultPosition);
@@ -46,6 +52,7 @@ export default function MapComponent({ planejar }: { planejar: boolean }) {
             position={testePosition}
             quantidade={7}
             planejar={planejar}
+            isCheckbox={isCheckbox}
           />
         </Map>
       </div>

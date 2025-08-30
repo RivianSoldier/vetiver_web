@@ -82,37 +82,48 @@ export function FiltersHeader() {
   };
 
   return (
-    <div className="flex items-start pt-3 sm:pt-0 sm:items-center justify-between h-28 sm:h-24 px-4">
+    <div className="flex flex-row sm:flex-row sm:items-center justify-between min-h-28 sm:min-h-24 px-2 sm:px-4 py-3">
       <div className="flex flex-col gap-2">
-        <div className="flex flex-row items-end gap-3">
-          <SidebarTrigger className="text-white w-8 h-8" />
-          <div className="w-[2px] h-10 bg-[#262626]" />
-          <div className="flex flex-col sm:flex-row md:items-center gap-3">
-            <SelectDistanceHeader />
-            <SelectClassHeader
-              key={selectKey}
-              onClassSelect={handleAddClass}
-              selectedClasses={selectedClasses}
-            />
+        <div className="flex flex-row items-start sm:items-center gap-3 mb-0">
+          <div className="flex items-center gap-3">
+            <SidebarTrigger className="text-white w-5 h-5 sm:w-8 sm:h-8" />
+            <div className="w-[2px] h-6 sm:h-10 bg-[#262626]" />
           </div>
-        </div>
-        <div className="hidden sm:flex flex-row items-center">
-          <SelectedClasses
-            selectedClasses={selectedClasses}
-            onRemoveClass={handleRemoveClass}
-            onClearAll={handleClearAllClasses}
-          />
+          <div className="flex flex-col sm:flex-row sm:items-start gap-3 flex-1 mb-0 [&>*]:mb-0">
+            <div className="flex flex-col md:items-start gap-3 flex-1">
+              <SelectClassHeader
+                key={selectKey}
+                onClassSelect={handleAddClass}
+                selectedClasses={selectedClasses}
+              />
+              {selectedClasses.length > 0 && (
+                <div className="flex flex-row items-center flex-wrap">
+                  <SelectedClasses
+                    selectedClasses={selectedClasses}
+                    onRemoveClass={handleRemoveClass}
+                    onClearAll={handleClearAllClasses}
+                  />
+                </div>
+              )}
+            </div>
+            <SelectDistanceHeader />
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-col justify-center items-end gap-2 sm:gap-5">
+      <div className="flex flex-col justify-start items-end gap-2 mt-0 sm:gap-3">
         <div className="flex gap-2 max-w-full">
           {isCalculating ? (
-            <div className="flex flex-row gap-2 w-full">
+            <div className="flex flex-col sm:flex-row gap-2 w-full">
               <HeaderButton
                 mode="outlined"
                 buttonIcon={
-                  <Image width={24} height={24} src="/X.png" alt="Eye Icon" />
+                  <Image
+                    width={24}
+                    height={24}
+                    src="/X.png"
+                    alt="Cancel Icon"
+                  />
                 }
                 text="Cancelar"
                 onClick={handlePlanningToggle}
@@ -124,13 +135,13 @@ export function FiltersHeader() {
               />
             </div>
           ) : isPlanning ? (
-            <div className="flex flex-row gap-2 w-full">
+            <div className="flex flex-col sm:flex-row gap-2 w-full">
               <HeaderButton
                 mode="outlined"
                 buttonIcon={
                   <Image width={24} height={24} src="/eye.png" alt="Eye Icon" />
                 }
-                text="Visualizar no Mapa"
+                text="Mapa"
                 onClick={handlePlanningToggle}
               />
               <HeaderButton
@@ -149,21 +160,6 @@ export function FiltersHeader() {
             />
           )}
         </div>
-        <div className="sm:hidden ">
-          <SelectedClasses
-            selectedClasses={selectedClasses}
-            onRemoveClass={handleRemoveClass}
-            onClearAll={handleClearAllClasses}
-          />
-        </div>
-        {/* <HeaderButton
-          mode="outlined"
-          buttonIcon={
-            <Image width={24} height={24} src="/eye.png" alt="Eye Icon" />
-          }
-          text="Visualizar no Mapa"
-        />
-        <HeaderButton mode="maps" text="Visualizar no Mapa" /> */}
       </div>
     </div>
   );
