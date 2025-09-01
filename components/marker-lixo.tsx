@@ -1,29 +1,36 @@
-import {
-  AdvancedMarker,
-} from "@vis.gl/react-google-maps";
+import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import Image from "next/image";
 import { Checkbox } from "./ui/checkbox";
 import { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from "./ui/table";
+import { Table, TableBody, TableCell, TableRow } from "./ui/table";
 import { HeaderButton } from "./header-button";
 
 export function MarkerLixo({
   position,
   quantidade,
+  foto,
+  classes,
   planejar = false,
   isCheckbox = false,
 }: {
   position: google.maps.LatLngLiteral;
   quantidade: number;
+  foto: string;
+  classes: Array<{ nome: string; quantidade: number }>;
   planejar?: boolean;
   isCheckbox?: boolean;
 }) {
   const [showHoverCard, setShowHoverCard] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
+
+  const handleImageClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowImageModal(true);
+  };
+
+  const closeImageModal = () => {
+    setShowImageModal(false);
+  };
 
   return (
     <>
@@ -63,11 +70,12 @@ export function MarkerLixo({
                     Foto
                   </h3>
                   <Image
-                    className="h-[110px] w-[80px] object-cover rounded-md"
+                    className="h-[110px] w-[80px] object-cover rounded-md cursor-pointer hover:opacity-80 transition-opacity"
                     width={80}
                     height={110}
-                    src="/foto_example.png"
+                    src={foto}
                     alt="Foto Icon"
+                    onClick={handleImageClick}
                   />
                 </div>
                 <div>
@@ -77,51 +85,41 @@ export function MarkerLixo({
                   <div className="rounded-md border border-[#404040]">
                     <Table className="w-[182px]">
                       <TableBody>
-                        <TableRow>
-                          <TableCell className="text-sm font-nunito p-1 border-r">
-                            Papelão
-                          </TableCell>
-                          <TableCell className="text-sm text-center font-nunito p-1">
-                            2
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="text-sm font-nunito p-1 border-r">
-                            Vidro
-                          </TableCell>
-                          <TableCell className="text-sm text-center font-nunito p-1">
-                            1
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="text-sm text-[#404040] font-nunito p-1 border-r">
-                            Metal
-                          </TableCell>
-                          <TableCell className="text-sm text-[#404040] text-center font-nunito p-1">
-                            0
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="text-sm text-[#404040] font-nunito p-1 border-r">
-                            Entulho
-                          </TableCell>
-                          <TableCell className="text-sm text-[#404040] text-center font-nunito p-1">
-                            0
-                          </TableCell>
-                        </TableRow>
+                        {classes.map((classe, index) => (
+                          <TableRow key={index}>
+                            <TableCell
+                              className={`text-sm font-nunito p-1 border-r ${
+                                classe.quantidade === 0
+                                  ? "text-[#404040]"
+                                  : "text-white"
+                              }`}
+                            >
+                              {classe.nome}
+                            </TableCell>
+                            <TableCell
+                              className={`text-sm text-center font-nunito p-1 ${
+                                classe.quantidade === 0
+                                  ? "text-[#404040]"
+                                  : "text-white"
+                              }`}
+                            >
+                              {classe.quantidade}
+                            </TableCell>
+                          </TableRow>
+                        ))}
                       </TableBody>
                     </Table>
                   </div>
                 </div>
               </div>
               <div className="flex flex-col w-full">
-                <p className="text-sm text-whitefont-nunito">Endereço</p>
+                <p className="text-sm text-white font-nunito">Endereço</p>
                 <p className="text-sm text-[#a6a6a6] font-nunito">
                   Rua Pereira Estéfano, 2400 - Jabaquara
                 </p>
               </div>
               <div className="flex flex-col w-full">
-                <p className="text-sm text-whitefont-nunito">Data</p>
+                <p className="text-sm text-white font-nunito">Data</p>
                 <p className="text-sm text-[#a6a6a6] font-nunito">
                   10/03/25 - 14:30
                 </p>
@@ -137,6 +135,31 @@ export function MarkerLixo({
             </div>
           </div>
         </AdvancedMarker>
+      )}
+
+      {/* Image Modal */}
+      {showImageModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[9999] cursor-pointer"
+          onClick={closeImageModal}
+        >
+          <div className="relative max-w-[90vw] max-h-[90vh]">
+            <button
+              onClick={closeImageModal}
+              className="absolute top-4 right-4 text-white text-2xl hover:text-gray-300 bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center"
+            >
+              ×
+            </button>
+            <Image
+              className="max-w-full max-h-full object-contain rounded-md"
+              width={800}
+              height={600}
+              src={foto}
+              alt="Foto em tamanho completo"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
       )}
     </>
   );

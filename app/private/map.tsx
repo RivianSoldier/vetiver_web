@@ -4,6 +4,35 @@ import { useState, useEffect } from "react";
 import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MarkerLixo } from "@/components/marker-lixo";
 
+const data = [
+  {
+    id: 1,
+    lat: -23.647336,
+    lng: -46.575399,
+    foto: "/foto_example.png",
+    classes: [
+      { nome: "Papelão", quantidade: 2 },
+      { nome: "Plástico", quantidade: 1 },
+      { nome: "Vidro", quantidade: 1 },
+      { nome: "Metal", quantidade: 0 },
+      { nome: "Entulho", quantidade: 0 },
+    ],
+  },
+  {
+    id: 2,
+    lat: -23.645876,
+    lng: -46.570875,
+    foto: "/foto_example.png",
+    classes: [
+      { nome: "Papelão", quantidade: 0 },
+      { nome: "Plástico", quantidade: 1 },
+      { nome: "Vidro", quantidade: 1 },
+      { nome: "Metal", quantidade: 0 },
+      { nome: "Entulho", quantidade: 2 },
+    ],
+  },
+];
+
 export default function MapComponent({
   planejar,
   isCheckbox,
@@ -53,7 +82,23 @@ export default function MapComponent({
             quantidade={7}
             planejar={planejar}
             isCheckbox={isCheckbox}
+            foto={""}
+            classes={[]}
           />
+          {data.map((item) => (
+            <MarkerLixo
+              key={item.id}
+              position={{ lat: item.lat, lng: item.lng }}
+              quantidade={item.classes.reduce(
+                (acc, curr) => acc + curr.quantidade,
+                0
+              )}
+              foto={item.foto}
+              classes={item.classes}
+              planejar={planejar}
+              isCheckbox={isCheckbox}
+            />
+          ))}
         </Map>
       </div>
     </APIProvider>
