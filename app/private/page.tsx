@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import SignOut from "./signout";
 import { FiltersHeader } from "@/components/filters-header";
 import { createClient } from "@/utils/supabase/server";
 import MapComponent from "./map";
@@ -16,8 +15,9 @@ export default async function PrivatePage({
     redirect("/login");
   }
 
-  const isPlanning = searchParams.planning === "true";
-  const isCalculating = searchParams.calculating === "true";
+  const resolvedSearchParams = searchParams;
+  const isPlanning = resolvedSearchParams.planning === "true";
+  const isCalculating = resolvedSearchParams.calculating === "true";
 
   const showCheckboxes = isPlanning && !isCalculating;
 

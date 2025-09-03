@@ -79,7 +79,7 @@ export function FiltersHeader() {
   };
 
   return (
-    <div className="flex flex-row sm:flex-row sm:items-center justify-between min-h-28 sm:min-h-24 px-2 sm:px-4 py-3">
+    <div className="flex flex-row sm:flex-row sm:items-center justify-between min-h-28 sm:min-h-24 px-2 sm:px-4 py-3 bg-[#0d0d0d]">
       <div className="flex flex-col gap-2">
         <div className="flex flex-row items-start sm:items-center gap-3 mb-0">
           <div className="flex items-center gap-3">
@@ -89,6 +89,10 @@ export function FiltersHeader() {
           <div className="flex flex-col sm:flex-row sm:items-start gap-3 flex-1 mb-0 [&>*]:mb-0">
             <div className="flex flex-col md:items-start gap-3 flex-1">
               <SelectClassHeader
+                classes={(ALL_CLASSES ?? []).map((c) => ({
+                  value: c.value,
+                  label: c.label,
+                }))}
                 key={selectKey}
                 onClassSelect={handleAddClass}
                 selectedClasses={selectedClasses}

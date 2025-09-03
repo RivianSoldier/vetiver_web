@@ -20,11 +20,13 @@ const classes = [
 ];
 
 interface SelectClassHeaderProps {
+  classes: { value: string; label: string }[];
   onClassSelect: (value: string) => void;
   selectedClasses: { value: string; label: string }[];
 }
 
 export function SelectClassHeader({
+  classes,
   onClassSelect,
   selectedClasses,
 }: SelectClassHeaderProps) {
