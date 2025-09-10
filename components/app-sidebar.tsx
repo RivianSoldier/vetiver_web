@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/sidebar";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
-import { headers } from "next/headers";
 
 import { AppSidebarNav } from "@/app/private/app-sidebar-nav";
 import { AppSidebarFooter } from "@/app/private/app-sidebar-footer";
@@ -40,9 +39,6 @@ type AppSidebarProps = {
 };
 
 export async function AppSidebar({ variant }: AppSidebarProps) {
-  const headerList = headers();
-  const pathname = (await headerList).get("x-current-path");
-
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
   if (error || !data?.user) {
@@ -56,7 +52,7 @@ export async function AppSidebar({ variant }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
-        <AppSidebarNav items={items} pathname={pathname} />
+        <AppSidebarNav items={items} />
       </SidebarContent>
 
       <SidebarFooter>

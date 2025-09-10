@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -26,11 +27,12 @@ type NavItem = {
 
 interface AppSidebarNavProps {
   items: NavItem[];
-  pathname: string | null;
 }
 
-export function AppSidebarNav({ items, pathname }: AppSidebarNavProps) {
+export function AppSidebarNav({ items }: AppSidebarNavProps) {
   const { state } = useSidebar();
+  const pathname = usePathname();
+
   return (
     <SidebarGroup className="mt-4">
       <SidebarGroupLabel className="text-md font-nunito mb-2">
