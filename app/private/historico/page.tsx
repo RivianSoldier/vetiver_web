@@ -180,7 +180,7 @@ export default async function HistoricoPage({
         status={ALL_STATUS.map((s) => s.label)}
       />
       <div className="bg-[#0d0d0d] flex flex-col flex-1">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6 overflow-y-auto w-full max-w-7xl mx-auto auto-rows-max justify-items-center sm:justify-items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6 overflow-y-auto w-full max-w-7xl mx-auto auto-rows-max justify-items-center">
           {currentPageData.map((item) => (
             <HistoryCard
               key={item.id}

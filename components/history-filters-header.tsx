@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { HeaderButton } from "./header-button";
-import { Waypoints, MoveRight, X } from "lucide-react";
+import { ArrowDownToLine } from "lucide-react";
 import { SelectStatusHeader } from "./select-status-header";
 import { SelectClassHeader } from "./select-class-header";
 import { SelectedClasses } from "./selected-classes";
@@ -90,9 +90,16 @@ export function HistoryFiltersHeader({
             <HeaderButton
               mode="outlined"
               buttonIcon={
-                <Image width={24} height={24} src="/X.png" alt="Cancel Icon" />
+                <ArrowDownToLine className="w-6 h-6 text-[#008D80] " />
               }
-              text="Cancelar"
+              text="Meu histórico"
+            />
+            <HeaderButton
+              mode="outlined"
+              buttonIcon={
+                <ArrowDownToLine className="w-6 h-6 text-[#008D80]" />
+              }
+              text="Histórico completo"
             />
           </div>
         </div>
