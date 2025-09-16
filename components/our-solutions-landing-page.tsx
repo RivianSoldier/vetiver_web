@@ -1,7 +1,7 @@
 import Image from "next/image";
 export function LandingPageOurSolutions() {
   return (
-    <div className="flex flex-col lg:flex-row justify-between items-center min-h-[426px] bg-[#0d0d0d] w-full p-4 md:p-[40px] xl:p-[90px] gap-14 lg:gap-0 max-w-[1440px]">
+    <div className="flex flex-col lg:flex-row justify-between items-center min-h-[426px] bg-[#0d0d0d] w-full p-4 md:p-[40px] xl:p-[90px] gap-14 lg:gap-0 max-w-[1800px]">
       <div className="flex flex-col gap-6 mb-10 md:mb-0 max-w-none">
         <h1 className="font-nunito font-light text-3xl">Nossa Solução</h1>
         <h1 className="font-poppins font-semibold text-5xl bg-gradient-to-r from-[#008D80] to-[#45BF55] bg-clip-text text-transparent leading-tight">
