@@ -3,6 +3,7 @@ import Link from "next/link";
 import { LandingPageHeader } from "@/components/header-landing-page";
 import { LandingPageObjectives } from "@/components/objective-landing-page";
 import { LandingPageProblems } from "@/components/problems-landing-page";
+import { LandingPageOurSolutions } from "@/components/our-solutions-landing-page";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <LandingPageHeader />
       <LandingPageObjectives />
       <LandingPageProblems />
+      <LandingPageOurSolutions />
     </div>
   );
 }
