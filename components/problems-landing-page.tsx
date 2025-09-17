@@ -2,14 +2,14 @@ import Image from "next/image";
 export function LandingPageProblems() {
   return (
     <div className="flex flex-col lg:flex-row items-center justify-center min-h-[356px] bg-gradient-to-r from-[#008D80]/15 to-[#45BF55]/15 w-full p-4 md:p-[40px] xl:p-[90px] gap-12 ">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-12 max-w-[1800px] w-full px-4 md:px-[40px] xl:px-[90px]">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-12 max-w-[1920px] w-full px-4">
         <div className="flex flex-col text-center md:text-left md:items-start">
-          <h1 className="font-poppins font-semibold text-5xl text-white">
-            O Problema
+          <h1 className="font-poppins font-semibold text-5xl text-white text-center md:text-start leading-tight max-w-[100%] md:max-w-[90%]">
+            O Problema em Números
           </h1>
-          <h1 className="font-poppins font-semibold text-5xl text-white mt-5">
+          {/* <h1 className="font-poppins font-semibold text-5xl text-white mt-5">
             em Números
-          </h1>
+          </h1> */}
         </div>
         <div className="flex flex-col md:flex-row items-center justify-center gap-12">
           <div className="flex flex-col items-center gap-9">

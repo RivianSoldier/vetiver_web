@@ -7,7 +7,7 @@ export function LandingPageProducts() {
           Para Cidadãos
         </h1>
       </div>
-      <div className="flex flex-col md:flex-row justify-center items-center min-h-48 bg-[#0d0d0d] w-full gap-10 max-w-[1800px]">
+      <div className="flex flex-col md:flex-row justify-center items-center min-h-48 bg-[#0d0d0d] w-full gap-10 max-w-[1920px]">
         <div className="flex flex-col justify-center items-center min-h-[630px] py-10 px-7">
           <div className="flex flex-col items-start gap-5">
             <div className="flex justify-center items-center w-9 h-9 bg-[#008D80] rounded-sm font-poppins font-bold">
@@ -77,7 +77,7 @@ export function LandingPageProducts() {
           Para Gestores
         </h1>
       </div>
-      <div className="flex flex-col md:flex-row justify-center items-center min-h-48 bg-[#0d0d0d] w-full gap-10 max-w-[1800px]">
+      <div className="flex flex-col md:flex-row justify-center items-center min-h-48 bg-[#0d0d0d] w-full gap-10 max-w-[1920px]">
         <div className="flex flex-col justify-center items-center min-h-[630px] py-10 px-7">
           <div className="flex flex-col items-start gap-5">
             <div className="flex justify-center items-center w-9 h-9 bg-[#008D80] rounded-sm font-poppins font-bold">
