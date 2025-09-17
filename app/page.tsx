@@ -1,9 +1,10 @@
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { LandingPageHeader } from "@/components/header-landing-page";
 import { LandingPageObjectives } from "@/components/objective-landing-page";
 import { LandingPageProblems } from "@/components/problems-landing-page";
 import { LandingPageOurSolutions } from "@/components/our-solutions-landing-page";
+import { LandingPageProducts } from "@/components/products-landing-page";
+import { LandingPageAboutUs } from "@/components/about-us-landing-page";
+import { LandingPageFooter } from "@/components/footer-landing-page";
 
 export default function Home() {
   return (
@@ -12,6 +13,9 @@ export default function Home() {
       <LandingPageObjectives />
       <LandingPageProblems />
       <LandingPageOurSolutions />
+      <LandingPageProducts />
+      <LandingPageAboutUs />
+      <LandingPageFooter />
     </div>
   );
 }
