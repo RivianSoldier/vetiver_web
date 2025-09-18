@@ -3,7 +3,7 @@ import Waves from "./Waves";
 
 export function LandingPageObjectives() {
   return (
-    <div className="flex flex-col md:flex-row items-stretch justify-start min-h-24 bg-[#0d0d0d] w-full max-w-[1920px]">
+    <div className="flex flex-col md:flex-row items-stretch justify-start min-h-24 bg-[#0d0d0d] w-full max-w-[1920px] ">
       <div className="flex flex-col items-start justify-start w-full md:w-[58%] px-5 sm:px-10 md:px-10 xl:px-20 py-5 sm:py-10 md:py-10 md:pb-0 xl:py-20 xl:pb-0 gap-5">
         <h1 className="font-nunito font-light text-3xl">Nosso Objetivo</h1>
         <div className="flex flex-col gap-8">
