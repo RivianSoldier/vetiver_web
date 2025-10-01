@@ -12,6 +12,9 @@ export function MarkerLixo({
   classes,
   planejar = false,
   isCheckbox = false,
+  id,
+  isSelected = false,
+  onSelectionChange,
 }: {
   position: google.maps.LatLngLiteral;
   quantidade: number;
@@ -19,6 +22,9 @@ export function MarkerLixo({
   classes: Array<{ nome: string; quantidade: number }>;
   planejar?: boolean;
   isCheckbox?: boolean;
+  id: number;
+  isSelected?: boolean;
+  onSelectionChange?: (id: number, selected: boolean) => void;
 }) {
   const [showHoverCard, setShowHoverCard] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -30,6 +36,10 @@ export function MarkerLixo({
 
   const closeImageModal = () => {
     setShowImageModal(false);
+  };
+
+  const handleCheckboxChange = (checked: boolean) => {
+    onSelectionChange?.(id, checked);
   };
 
   return (
@@ -50,7 +60,11 @@ export function MarkerLixo({
           <Image width={40} height={40} src="/marker.svg" alt="Marker Icon" />
           {isCheckbox && (
             <div className="absolute w-5 h-5 bottom-[-8px] rounded-md right-[-4px] bg-[#0d0d0d] ">
-              <Checkbox className="w-5 h-5 cursor-pointer" />
+              <Checkbox
+                className="w-5 h-5 cursor-pointer"
+                checked={isSelected}
+                onCheckedChange={handleCheckboxChange}
+              />
             </div>
           )}
         </div>

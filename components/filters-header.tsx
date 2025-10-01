@@ -9,6 +9,7 @@ import { SelectDistanceHeader } from "./select-distance-header";
 import { SelectClassHeader } from "./select-class-header";
 import { SelectedClasses } from "./selected-classes";
 import Image from "next/image";
+import { routesService } from "@/services/routesService";
 
 const ALL_CLASSES = [
   { value: "class1", label: "Classe 1" },
@@ -16,6 +17,28 @@ const ALL_CLASSES = [
   { value: "class3", label: "Classe 3" },
   { value: "class4", label: "Classe 4" },
   { value: "class5", label: "Classe 5" },
+];
+
+// Marker data - should match the data in map.tsx
+const MARKER_DATA = [
+  {
+    id: 0,
+    lat: -23.647336,
+    lng: -46.575399,
+    name: "Test Marker",
+  },
+  {
+    id: 1,
+    lat: -23.647336,
+    lng: -46.575399,
+    name: "Marker 1",
+  },
+  {
+    id: 2,
+    lat: -23.645876,
+    lng: -46.570875,
+    name: "Marker 2",
+  },
 ];
 
 export function FiltersHeader() {
@@ -54,6 +77,55 @@ export function FiltersHeader() {
     router.push(`/private${query}`);
 
     console.log("Calculating route...");
+  };
+
+  const handleOpenGoogleMaps = () => {
+    const markersParam = searchParams.get("markers");
+    if (!markersParam) {
+      console.warn("No markers selected for route");
+      return;
+    }
+
+    // Get selected marker IDs
+    const markerIds = markersParam
+      .split(",")
+      .map((id) => parseInt(id))
+      .filter((id) => !isNaN(id));
+
+    if (markerIds.length === 0) {
+      console.warn("No valid markers selected");
+      return;
+    }
+
+    // Get coordinates for selected markers
+    const selectedWaypoints = markerIds
+      .map((id) => {
+        const marker = MARKER_DATA.find((m) => m.id === id);
+        return marker ? { lat: marker.lat, lng: marker.lng } : null;
+      })
+      .filter(Boolean) as Array<{ lat: number; lng: number }>;
+
+    if (selectedWaypoints.length === 0) {
+      console.warn("No valid waypoint coordinates found");
+      return;
+    }
+
+    // For Google Maps URL, we'll use current location as origin
+    // and create a route through all selected waypoints
+    const destination = selectedWaypoints[selectedWaypoints.length - 1];
+    const intermediateWaypoints = selectedWaypoints.slice(0, -1);
+
+    // Create Google Maps URL using the routesService method
+    const mapsUrl = routesService.createGoogleMapsUrl({
+      origin: { lat: 0, lng: 0 }, // Will be replaced with "Your+Location" in the URL
+      destination,
+      waypoints: intermediateWaypoints,
+    });
+
+    // Replace the origin coordinates with current location placeholder
+    const finalUrl = mapsUrl.replace("0,0", "Your+Location");
+
+    window.open(finalUrl, "_blank");
   };
   const handleAddClass = (classValue: string) => {
     if (selectedClasses.some((c) => c.value === classValue)) {
@@ -132,7 +204,7 @@ export function FiltersHeader() {
               <HeaderButton
                 mode="maps"
                 text="Ver rota no Maps"
-                onClick={() => console.log("Opening Google Maps...")}
+                onClick={handleOpenGoogleMaps}
               />
             </div>
           ) : isPlanning ? (
