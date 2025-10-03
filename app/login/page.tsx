@@ -136,7 +136,7 @@ export function HeaderButton({
   return (
     <div className="h-14 w-32 sm:w-36 md:w-40 flex justify-center items-center rounded-full bg-gradient-to-r from-[#008D80] to-[#45BF55] transition-all duration-300 ease-in-out hover:scale-102 hover:brightness-110 cursor-pointer">
       <Button
-        className="h-[calc(100%-4px)] w-[calc(100%-4px)] bg-[#0d0d0d] rounded-full hover:bg-[#262626] transition-all duration-300 ease-in-out cursor-pointer"
+        className="h-[calc(100%-4px)] w-[calc(100%-4px)] bg-[#0d0d0d] rounded-full hover:bg-[#262626] transition-all duration-300 ease-in-out cursor-pointer disabled:bg-[#0d0d0d] disabled:hover:bg-[#0d0d0d] disabled:opacity-100"
         disabled={disabled || isPending}
         onClick={onClick}
       >
@@ -260,7 +260,7 @@ export default function LoginPage() {
               </div>
               <div className="flex justify-end w-full max-w-lg">
                 <Link
-                  href="/forgot-password"
+                  href="/login/forgot-password"
                   className="font-nunito text-sm bg-linear-to-r from-[#45BF55] to-[#008D80] inline-block text-transparent bg-clip-text antialiased hover:opacity-80"
                 >
                   Esqueceu a senha?

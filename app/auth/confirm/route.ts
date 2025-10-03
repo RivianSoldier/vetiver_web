@@ -18,6 +18,10 @@ export async function GET(request: NextRequest) {
       token_hash,
     });
     if (!error) {
+      // For password recovery, redirect to the password reset form
+      if (type === "recovery") {
+        redirect("/login/reset-password");
+      }
       // redirect user to specified redirect URL or root of app
       redirect(next);
     }
