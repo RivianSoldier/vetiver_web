@@ -35,6 +35,19 @@ const data = [
       { nome: "Entulho", quantidade: 2 },
     ],
   },
+  {
+    id: 3,
+    lat: -23.658239,
+    lng: -46.567282,
+    foto: "/foto_example.png",
+    classes: [
+      { nome: "Papelão", quantidade: 0 },
+      { nome: "Plástico", quantidade: 1 },
+      { nome: "Vidro", quantidade: 1 },
+      { nome: "Metal", quantidade: 0 },
+      { nome: "Entulho", quantidade: 2 },
+    ],
+  },
 ];
 
 export default function MapComponent({
@@ -55,7 +68,6 @@ export default function MapComponent({
   const { routeData, isCalculating, error, calculateRoute, clearRoute } =
     useRoutes();
 
-  // Load selected markers from URL on mount
   useEffect(() => {
     const markersParam = searchParams.get("markers");
     if (markersParam) {
@@ -67,7 +79,6 @@ export default function MapComponent({
     }
   }, [searchParams]);
 
-  // Handle marker selection
   const handleMarkerSelection = (markerId: number, selected: boolean) => {
     const newSelectedMarkers = new Set(selectedMarkers);
     if (selected) {
@@ -77,7 +88,6 @@ export default function MapComponent({
     }
     setSelectedMarkers(newSelectedMarkers);
 
-    // Update URL with selected markers
     const current = new URLSearchParams(Array.from(searchParams.entries()));
     if (newSelectedMarkers.size > 0) {
       current.set("markers", Array.from(newSelectedMarkers).join(","));
@@ -90,7 +100,6 @@ export default function MapComponent({
     router.replace(`/private${query}`);
   };
 
-  // Calculate route when in planejar mode and markers are selected
   useEffect(() => {
     if (planejar && selectedMarkers.size > 0) {
       const selectedWaypoints = Array.from(selectedMarkers)
@@ -146,6 +155,8 @@ export default function MapComponent({
           defaultZoom={15}
           defaultCenter={position}
           mapId={process.env.NEXT_PUBLIC_DARK_MODE_MAP_ID}
+          disableDefaultUI={true}
+          zoomControl={true}
         >
           <AdvancedMarker position={position}>
             <div className="p-1 bg-[#45bf5547] rounded-full">
@@ -181,7 +192,6 @@ export default function MapComponent({
             />
           ))}
 
-          {/* Display route polyline when route data is available */}
           {routeData && routeData.routes[0] && (
             <RoutePolyline
               encodedPolyline={routeData.routes[0].polyline.encodedPolyline}

@@ -23,10 +23,8 @@ export function RoutePolyline({
   useEffect(() => {
     if (!map || !encodedPolyline) return;
 
-    // Decode the polyline
     const path = routesService.decodePolyline(encodedPolyline);
 
-    // Create the polyline
     const newPolyline = new google.maps.Polyline({
       path: path.map((p) => ({ lat: p.lat, lng: p.lng })),
       geodesic: true,
@@ -35,11 +33,9 @@ export function RoutePolyline({
       strokeWeight: strokeWeight,
     });
 
-    // Set the polyline on the map
     newPolyline.setMap(map);
     setPolyline(newPolyline);
 
-    // Cleanup function
     return () => {
       if (newPolyline) {
         newPolyline.setMap(null);
@@ -47,7 +43,6 @@ export function RoutePolyline({
     };
   }, [map, encodedPolyline, color, strokeWeight, strokeOpacity]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (polyline) {
@@ -56,5 +51,5 @@ export function RoutePolyline({
     };
   }, [polyline]);
 
-  return null; // This component doesn't render anything directly
+  return null;
 }

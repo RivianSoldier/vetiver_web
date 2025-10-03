@@ -4,10 +4,19 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { HeaderButton } from "./header-button";
-import { Waypoints, MoveRight, X } from "lucide-react";
+import { Waypoints, MoveRight, X, Filter } from "lucide-react";
 import { SelectDistanceHeader } from "./select-distance-header";
 import { SelectClassHeader } from "./select-class-header";
 import { SelectedClasses } from "./selected-classes";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 import Image from "next/image";
 import { routesService } from "@/services/routesService";
 
@@ -44,6 +53,7 @@ const MARKER_DATA = [
 export function FiltersHeader() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const isMobile = useIsMobile();
   const isPlanning = searchParams.get("planning") === "true";
   const isCalculating = searchParams.get("calculating") === "true";
 
@@ -51,6 +61,7 @@ export function FiltersHeader() {
     { value: string; label: string }[]
   >([]);
   const [selectKey, setSelectKey] = useState(Date.now());
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const handlePlanningToggle = () => {
     const current = new URLSearchParams(Array.from(searchParams.entries()));
@@ -150,15 +161,79 @@ export function FiltersHeader() {
     setSelectKey(Date.now());
   };
 
-  return (
-    <div className="flex flex-row sm:flex-row sm:items-center justify-between min-h-28 sm:min-h-24 px-2 sm:px-4 py-3 bg-[#0d0d0d]">
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-row items-start sm:items-center gap-3 mb-0">
-          <div className="flex items-center gap-3">
-            <SidebarTrigger className="text-white w-5 h-5 sm:w-8 sm:h-8" />
-            <div className="w-[2px] h-6 sm:h-10 bg-[#262626]" />
+  // Mobile Filter Content Component
+  const MobileFiltersContent = () => (
+    <div className="flex flex-col gap-4 p-6 pt-0">
+      <div>
+        <h3 className="text-white font-poppins font-semibold text-md mb-4">
+          Distância
+        </h3>
+        <SelectDistanceHeader />
+      </div>
+      <div>
+        <h3 className="text-white font-poppins font-semibold text-md mb-4">
+          Classes
+        </h3>
+        <SelectClassHeader
+          classes={(ALL_CLASSES ?? []).map((c) => ({
+            value: c.value,
+            label: c.label,
+          }))}
+          key={selectKey}
+          onClassSelect={handleAddClass}
+          selectedClasses={selectedClasses}
+        />
+        {selectedClasses.length > 0 && (
+          <div className="mt-4">
+            <SelectedClasses
+              selectedClasses={selectedClasses}
+              onRemoveClass={handleRemoveClass}
+              onClearAll={handleClearAllClasses}
+            />
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-start gap-3 flex-1 mb-0 [&>*]:mb-0">
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-row items-center justify-between min-h-24 px-2 sm:px-4 py-3 bg-[#0d0d0d]">
+      <div className="flex flex-row items-center gap-3">
+        <SidebarTrigger className="text-white w-5 h-5 sm:w-8 sm:h-8" />
+        <div className="w-[2px] h-6 sm:h-10 bg-[#262626]" />
+
+        {isMobile ? (
+          // Mobile: Sheet with filter button
+          <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+            <SheetTrigger asChild>
+              <button className="flex items-center gap-2 text-white font-nunito text-sm bg-[#262626] px-3 py-2 rounded-md hover:bg-[#333333] transition-colors">
+                <Filter size={16} />
+                Filtros
+                {selectedClasses.length > 0 && (
+                  <span className="bg-[#008D80] text-white text-xs px-2 py-1 rounded-full">
+                    {selectedClasses.length}
+                  </span>
+                )}
+              </button>
+            </SheetTrigger>
+            <SheetContent
+              side="bottom"
+              className="bg-[#0d0d0d] border-t border-[#262626]"
+            >
+              <SheetHeader className="pl-6 pb-4">
+                <SheetTitle className="text-white font-poppins text-md">
+                  Filtros
+                </SheetTitle>
+                <SheetDescription className="text-[#a6a6a6]">
+                  Configure os filtros de busca
+                </SheetDescription>
+              </SheetHeader>
+              <MobileFiltersContent />
+            </SheetContent>
+          </Sheet>
+        ) : (
+          // Desktop: Current layout
+          <div className="flex flex-row items-start gap-3 flex-1">
             <div className="flex flex-col md:items-start gap-3 flex-1">
               <SelectClassHeader
                 classes={(ALL_CLASSES ?? []).map((c) => ({
@@ -179,9 +254,11 @@ export function FiltersHeader() {
                 </div>
               )}
             </div>
-            <SelectDistanceHeader />
+            <div className="flex flex-col items-start">
+              <SelectDistanceHeader />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="flex flex-col justify-start items-end gap-2 mt-0 sm:gap-3">
