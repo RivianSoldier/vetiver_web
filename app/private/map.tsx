@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MarkerLixo } from "@/components/marker-lixo";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -79,26 +79,29 @@ export default function MapComponent({
     }
   }, [searchParams]);
 
-  const handleMarkerSelection = (markerId: number, selected: boolean) => {
-    const newSelectedMarkers = new Set(selectedMarkers);
-    if (selected) {
-      newSelectedMarkers.add(markerId);
-    } else {
-      newSelectedMarkers.delete(markerId);
-    }
-    setSelectedMarkers(newSelectedMarkers);
+  const handleMarkerSelection = useCallback(
+    (markerId: number, selected: boolean) => {
+      const newSelectedMarkers = new Set(selectedMarkers);
+      if (selected) {
+        newSelectedMarkers.add(markerId);
+      } else {
+        newSelectedMarkers.delete(markerId);
+      }
+      setSelectedMarkers(newSelectedMarkers);
 
-    const current = new URLSearchParams(Array.from(searchParams.entries()));
-    if (newSelectedMarkers.size > 0) {
-      current.set("markers", Array.from(newSelectedMarkers).join(","));
-    } else {
-      current.delete("markers");
-    }
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      if (newSelectedMarkers.size > 0) {
+        current.set("markers", Array.from(newSelectedMarkers).join(","));
+      } else {
+        current.delete("markers");
+      }
 
-    const search = current.toString();
-    const query = search ? `?${search}` : "";
-    router.replace(`/private${query}`);
-  };
+      const search = current.toString();
+      const query = search ? `?${search}` : "";
+      router.replace(`/private${query}`);
+    },
+    [selectedMarkers, searchParams, router]
+  );
 
   useEffect(() => {
     if (planejar && selectedMarkers.size > 0) {

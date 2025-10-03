@@ -1,21 +1,11 @@
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import Image from "next/image";
 import { Checkbox } from "./ui/checkbox";
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Table, TableBody, TableCell, TableRow } from "./ui/table";
 import { HeaderButton } from "./header-button";
 
-export function MarkerLixo({
-  position,
-  quantidade,
-  foto,
-  classes,
-  planejar = false,
-  isCheckbox = false,
-  id,
-  isSelected = false,
-  onSelectionChange,
-}: {
+interface MarkerLixoProps {
   position: google.maps.LatLngLiteral;
   quantidade: number;
   foto: string;
@@ -25,7 +15,19 @@ export function MarkerLixo({
   id: number;
   isSelected?: boolean;
   onSelectionChange?: (id: number, selected: boolean) => void;
-}) {
+}
+
+export const MarkerLixo = memo(function MarkerLixo({
+  position,
+  quantidade,
+  foto,
+  classes,
+  planejar = false,
+  isCheckbox = false,
+  id,
+  isSelected = false,
+  onSelectionChange,
+}: MarkerLixoProps) {
   const [showHoverCard, setShowHoverCard] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
 
@@ -177,4 +179,4 @@ export function MarkerLixo({
       )}
     </>
   );
-}
+});

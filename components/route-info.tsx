@@ -1,7 +1,7 @@
 "use client";
 
 import { RouteResponse } from "@/services/routesService";
-import { useState } from "react";
+import { useState, memo } from "react";
 import {
   HoverCard,
   HoverCardContent,
@@ -16,7 +16,11 @@ interface RouteInfoProps {
   error: string | null;
 }
 
-export function RouteInfo({ routeData, isCalculating, error }: RouteInfoProps) {
+export const RouteInfo = memo(function RouteInfo({
+  routeData,
+  isCalculating,
+  error,
+}: RouteInfoProps) {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -121,7 +125,7 @@ export function RouteInfo({ routeData, isCalculating, error }: RouteInfoProps) {
       </HoverCard>
     </>
   );
-}
+});
 
 function formatDuration(duration: string): string {
   const seconds = parseInt(duration.replace("s", ""));

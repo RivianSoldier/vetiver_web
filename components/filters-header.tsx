@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { HeaderButton } from "./header-button";
@@ -57,13 +57,23 @@ export function FiltersHeader() {
   const isPlanning = searchParams.get("planning") === "true";
   const isCalculating = searchParams.get("calculating") === "true";
 
+  // Memoize mapped classes to prevent recreation on every render
+  const mappedClasses = useMemo(
+    () =>
+      (ALL_CLASSES ?? []).map((c) => ({
+        value: c.value,
+        label: c.label,
+      })),
+    []
+  );
+
   const [selectedClasses, setSelectedClasses] = useState<
     { value: string; label: string }[]
   >([]);
   const [selectKey, setSelectKey] = useState(Date.now());
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-  const handlePlanningToggle = () => {
+  const handlePlanningToggle = useCallback(() => {
     const current = new URLSearchParams(Array.from(searchParams.entries()));
 
     if (isPlanning || isCalculating) {
@@ -76,9 +86,9 @@ export function FiltersHeader() {
     const search = current.toString();
     const query = search ? `?${search}` : "";
     router.push(`/private${query}`);
-  };
+  }, [searchParams, isPlanning, isCalculating, router]);
 
-  const handleCalculateRoute = () => {
+  const handleCalculateRoute = useCallback(() => {
     const current = new URLSearchParams(Array.from(searchParams.entries()));
     current.set("calculating", "true");
     current.delete("planning");
@@ -88,9 +98,9 @@ export function FiltersHeader() {
     router.push(`/private${query}`);
 
     console.log("Calculating route...");
-  };
+  }, [searchParams, router]);
 
-  const handleOpenGoogleMaps = () => {
+  const handleOpenGoogleMaps = useCallback(() => {
     const markersParam = searchParams.get("markers");
     if (!markersParam) {
       console.warn("No markers selected for route");
@@ -137,63 +147,76 @@ export function FiltersHeader() {
     const finalUrl = mapsUrl.replace("0,0", "Your+Location");
 
     window.open(finalUrl, "_blank");
-  };
-  const handleAddClass = (classValue: string) => {
-    if (selectedClasses.some((c) => c.value === classValue)) {
-      return;
-    }
-    const classToAdd = ALL_CLASSES.find((c) => c.value === classValue);
-    if (classToAdd) {
-      setSelectedClasses([...selectedClasses, classToAdd]);
-      setSelectKey(Date.now());
-    }
-  };
+  }, [searchParams]);
 
-  const handleRemoveClass = (classValue: string) => {
-    if (selectedClasses.length === 1) {
-      setSelectKey(Date.now());
-    }
-    setSelectedClasses(selectedClasses.filter((c) => c.value !== classValue));
-  };
+  const handleAddClass = useCallback(
+    (classValue: string) => {
+      if (selectedClasses.some((c) => c.value === classValue)) {
+        return;
+      }
+      const classToAdd = ALL_CLASSES.find((c) => c.value === classValue);
+      if (classToAdd) {
+        setSelectedClasses([...selectedClasses, classToAdd]);
+        setSelectKey(Date.now());
+      }
+    },
+    [selectedClasses]
+  );
 
-  const handleClearAllClasses = () => {
+  const handleRemoveClass = useCallback(
+    (classValue: string) => {
+      if (selectedClasses.length === 1) {
+        setSelectKey(Date.now());
+      }
+      setSelectedClasses(selectedClasses.filter((c) => c.value !== classValue));
+    },
+    [selectedClasses]
+  );
+
+  const handleClearAllClasses = useCallback(() => {
     setSelectedClasses([]);
     setSelectKey(Date.now());
-  };
+  }, []);
 
   // Mobile Filter Content Component
-  const MobileFiltersContent = () => (
-    <div className="flex flex-col gap-4 p-6 pt-0">
-      <div>
-        <h3 className="text-white font-poppins font-semibold text-md mb-4">
-          Distância
-        </h3>
-        <SelectDistanceHeader />
+  const MobileFiltersContent = useMemo(
+    () => (
+      <div className="flex flex-col gap-4 p-6 pt-0">
+        <div>
+          <h3 className="text-white font-poppins font-semibold text-md mb-4">
+            Distância
+          </h3>
+          <SelectDistanceHeader />
+        </div>
+        <div>
+          <h3 className="text-white font-poppins font-semibold text-md mb-4">
+            Classes
+          </h3>
+          <SelectClassHeader
+            classes={mappedClasses}
+            key={selectKey}
+            onClassSelect={handleAddClass}
+            selectedClasses={selectedClasses}
+          />
+          {selectedClasses.length > 0 && (
+            <div className="mt-4">
+              <SelectedClasses
+                selectedClasses={selectedClasses}
+                onRemoveClass={handleRemoveClass}
+                onClearAll={handleClearAllClasses}
+              />
+            </div>
+          )}
+        </div>
       </div>
-      <div>
-        <h3 className="text-white font-poppins font-semibold text-md mb-4">
-          Classes
-        </h3>
-        <SelectClassHeader
-          classes={(ALL_CLASSES ?? []).map((c) => ({
-            value: c.value,
-            label: c.label,
-          }))}
-          key={selectKey}
-          onClassSelect={handleAddClass}
-          selectedClasses={selectedClasses}
-        />
-        {selectedClasses.length > 0 && (
-          <div className="mt-4">
-            <SelectedClasses
-              selectedClasses={selectedClasses}
-              onRemoveClass={handleRemoveClass}
-              onClearAll={handleClearAllClasses}
-            />
-          </div>
-        )}
-      </div>
-    </div>
+    ),
+    [
+      selectKey,
+      handleAddClass,
+      selectedClasses,
+      handleRemoveClass,
+      handleClearAllClasses,
+    ]
   );
 
   return (
@@ -228,7 +251,7 @@ export function FiltersHeader() {
                   Configure os filtros de busca
                 </SheetDescription>
               </SheetHeader>
-              <MobileFiltersContent />
+              {MobileFiltersContent}
             </SheetContent>
           </Sheet>
         ) : (
@@ -236,10 +259,7 @@ export function FiltersHeader() {
           <div className="flex flex-row items-start gap-3 flex-1">
             <div className="flex flex-col md:items-start gap-3 flex-1">
               <SelectClassHeader
-                classes={(ALL_CLASSES ?? []).map((c) => ({
-                  value: c.value,
-                  label: c.label,
-                }))}
+                classes={mappedClasses}
                 key={selectKey}
                 onClassSelect={handleAddClass}
                 selectedClasses={selectedClasses}
