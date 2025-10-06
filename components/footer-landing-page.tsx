@@ -1,6 +1,4 @@
-import Link from "next/link";
 import Image from "next/image";
-import { Button } from "./ui/button";
 export function LandingPageFooter() {
   return (
     <div className="flex flex-row items-center justify-between min-h-20 bg-gradient-to-r from-[#008D80]/15 to-[#45BF55]/15 border-b-[1px] border-[#404040] w-full px-6">

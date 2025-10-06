@@ -28,7 +28,6 @@ const ALL_CLASSES = [
   { value: "class5", label: "Classe 5" },
 ];
 
-// Marker data - should match the data in map.tsx
 const MARKER_DATA = [
   {
     id: 0,

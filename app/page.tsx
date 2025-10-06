@@ -16,7 +16,6 @@ export default function Home({
     error_description?: string;
   };
 }) {
-  // Handle auth errors from password reset links
   if (searchParams.error) {
     const errorMessage = searchParams.error_description || searchParams.error;
 

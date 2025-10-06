@@ -1,6 +1,3 @@
-// Google Routes API Service
-// Using the new Routes API (not legacy Directions API)
-
 export interface RouteWaypoint {
   lat: number;
   lng: number;
@@ -59,7 +56,6 @@ export class RoutesService {
   }
 
   async calculateRoute(request: RouteRequest): Promise<RouteResponse> {
-    // When optimizing waypoint order, we need to use a compatible routing preference
     const useOptimization =
       request.optimizeWaypointOrder &&
       request.waypoints &&
@@ -83,7 +79,6 @@ export class RoutesService {
         },
       },
       travelMode: request.travelMode || "DRIVE",
-      // Use TRAFFIC_AWARE only when not optimizing waypoints
       routingPreference: useOptimization
         ? "TRAFFIC_UNAWARE"
         : "TRAFFIC_AWARE_OPTIMAL",
@@ -93,7 +88,6 @@ export class RoutesService {
       units: "METRIC",
     };
 
-    // Add waypoints if provided
     if (request.waypoints && request.waypoints.length > 0) {
       (requestBody as any).intermediates = request.waypoints.map(
         (waypoint) => ({
@@ -106,7 +100,6 @@ export class RoutesService {
         })
       );
 
-      // Enable waypoint optimization if requested and compatible
       if (request.optimizeWaypointOrder) {
         (requestBody as any).optimizeWaypointOrder = true;
       }
@@ -135,9 +128,7 @@ export class RoutesService {
     return response.json();
   }
 
-  // Utility method to decode polyline for display on map
   decodePolyline(encodedPolyline: string): Array<{ lat: number; lng: number }> {
-    // Google polyline decoding algorithm
     let index = 0;
     const len = encodedPolyline.length;
     const path: Array<{ lat: number; lng: number }> = [];
@@ -175,7 +166,6 @@ export class RoutesService {
     return path;
   }
 
-  // Create Google Maps URL for external navigation
   createGoogleMapsUrl(request: RouteRequest): string {
     const origin = `${request.origin.lat},${request.origin.lng}`;
     const destination = `${request.destination.lat},${request.destination.lng}`;
@@ -195,7 +185,6 @@ export class RoutesService {
   }
 }
 
-// Export singleton instance
 export const routesService = new RoutesService(
   process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""
 );

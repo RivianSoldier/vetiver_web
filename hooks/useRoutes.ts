@@ -39,8 +39,6 @@ export const useRoutes = (): UseRoutesReturn => {
       setError(null);
 
       try {
-        // For a circular route, we'll set the destination to be the last waypoint
-        // and use all others as intermediate waypoints
         const destination = waypoints[waypoints.length - 1];
         const intermediateWaypoints = waypoints.slice(0, -1);
 
@@ -49,7 +47,7 @@ export const useRoutes = (): UseRoutesReturn => {
           destination,
           waypoints: intermediateWaypoints,
           travelMode: "DRIVE",
-          optimizeWaypointOrder: true, // Let Google optimize the order
+          optimizeWaypointOrder: true,
           routeModifiers: {
             avoidTolls: false,
             avoidHighways: false,
