@@ -12,9 +12,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import { Mail, Lock, Loader2Icon, ChevronLeft } from "lucide-react";
+import { Mail, Loader2Icon, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import InputPassword from "@/components/ui/input-password";
 
@@ -41,58 +41,6 @@ interface PasswordFieldProps {
   control: Control<FormSchemaType>;
   name: "password";
   disabled: boolean;
-}
-
-function InputField({
-  control,
-  name,
-  type,
-  placeholder,
-  disabled,
-}: InputFieldProps) {
-  return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className="w-full">
-          <FormControl>
-            <Input
-              className="h-12 w-full rounded-sm"
-              id={name}
-              type={type}
-              placeholder={placeholder}
-              disabled={disabled}
-              {...field}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-}
-
-function InputPasswordField({ control, name, disabled }: PasswordFieldProps) {
-  return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className="w-full">
-          <FormControl>
-            <InputPassword
-              className="h-12 w-full rounded-sm"
-              id={name}
-              disabled={disabled}
-              {...field}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
 }
 
 interface SubmitButtonProps {
@@ -134,9 +82,7 @@ function Header({ text }: HeaderProps) {
 }
 
 export default function LoginPage() {
-  const [error, setError] = useState<string | null>(null);
-  const [isLoginPending, startLoginTransition] = useTransition();
-  const [isSignupPending, startSignupTransition] = useTransition();
+  const [error] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -145,31 +91,6 @@ export default function LoginPage() {
       password: "",
     },
   });
-
-  const handleSubmit = async (
-    action: (formData: FormData) => Promise<void | { error: string | null }>,
-    values: z.infer<typeof formSchema>,
-    startTransition: (callback: () => Promise<void>) => void
-  ) => {
-    setError(null);
-    const formData = new FormData();
-    formData.append("email", values.email);
-    formData.append("password", values.password);
-
-    startTransition(async () => {
-      try {
-        const result = await action(formData);
-
-        if (result && result.error) {
-          setError(result.error);
-        }
-      } catch (err) {
-        setError("An unexpected error occurred. Please try again.");
-      }
-    });
-  };
-
-  const isAnyPending = isLoginPending || isSignupPending;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">

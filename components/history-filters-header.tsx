@@ -8,7 +8,6 @@ import { ArrowDownToLine } from "lucide-react";
 import { SelectStatusHeader } from "./select-status-header";
 import { SelectClassHeader } from "./select-class-header";
 import { SelectedClasses } from "./selected-classes";
-import Image from "next/image";
 
 export function HistoryFiltersHeader({
   classes,
@@ -17,11 +16,6 @@ export function HistoryFiltersHeader({
   classes?: string[];
   status?: string[];
 }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const isPlanning = searchParams.get("planning") === "true";
-  const isCalculating = searchParams.get("calculating") === "true";
-
   const [selectedClasses, setSelectedClasses] = useState<
     { value: string; label: string }[]
   >([]);

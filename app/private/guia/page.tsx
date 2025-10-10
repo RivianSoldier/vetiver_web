@@ -7,7 +7,6 @@ export default async function GuidePage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const supabase = await createClient();
-  const params = await searchParams;
 
   const { data, error } = await supabase.auth.getUser();
   if (error || !data?.user) {

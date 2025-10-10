@@ -11,14 +11,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const classes = [
-  { value: "class1", label: "Classe 1" },
-  { value: "class2", label: "Classe 2" },
-  { value: "class3", label: "Classe 3" },
-  { value: "class4", label: "Classe 4" },
-  { value: "class5", label: "Classe 5" },
-];
-
 interface SelectClassHeaderProps {
   classes: { value: string; label: string }[];
   onClassSelect: (value: string) => void;
