@@ -5,10 +5,38 @@ import { useState, memo } from "react";
 import { Table, TableBody, TableCell, TableRow } from "./ui/table";
 import { HeaderButton } from "./header-button";
 
-interface DetectionPoint {
-  class: string;
-  coordinates: number[][];
+// New format detection types (from backend)
+interface SubClass {
+  class_name: string;
+  contour: number[][];
 }
+
+interface LixoDetection {
+  lixo_contour: number[][];
+  sub_classes?: SubClass[];
+}
+
+interface NewFormatDetectionPoints {
+  lixo_detections: LixoDetection[];
+  class_counts: {
+    papel: number;
+    plastico: number;
+    vidro: number;
+    metal: number;
+  };
+}
+
+// Old format detection type
+interface OldFormatDetection {
+  class_name: string;
+  contour_normalized: number[][];
+}
+
+// Union type for detection points
+type DetectionPointsType =
+  | NewFormatDetectionPoints
+  | OldFormatDetection[]
+  | Record<string, unknown>;
 
 interface MarkerLixoProps {
   position: google.maps.LatLngLiteral;
@@ -20,7 +48,7 @@ interface MarkerLixoProps {
   id: string;
   isSelected?: boolean;
   onSelectionChange?: (id: string, selected: boolean) => void;
-  detectionPoints?: Record<string, any>;
+  detectionPoints?: DetectionPointsType;
 }
 
 export const MarkerLixo = memo(function MarkerLixo({
@@ -190,6 +218,7 @@ export const MarkerLixo = memo(function MarkerLixo({
               </svg>
             </button>
             <div className="relative max-w-[90vw] max-h-[90vh]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className="max-w-full max-h-[90vh] object-contain rounded-md"
                 src={imageSrc}
@@ -205,69 +234,107 @@ export const MarkerLixo = memo(function MarkerLixo({
               />
               {detectionPoints &&
                 imageSize.width > 0 &&
-                imageSize.height > 0 && (
-                  <svg
-                    className="absolute top-0 left-0 w-full h-full pointer-events-none"
-                    viewBox={`0 0 ${imageSize.width} ${imageSize.height}`}
-                    preserveAspectRatio="xMidYMid meet"
-                  >
-                    {Array.isArray(detectionPoints) &&
-                      detectionPoints
-                        .filter((d: any) => d.class_name === "lixo")
-                        .map((detection: any, idx: number) => {
-                          const contour = detection.contour_normalized;
-                          if (!Array.isArray(contour) || contour.length === 0)
-                            return null;
+                imageSize.height > 0 &&
+                (() => {
+                  // Check if it's the new format with lixo_detections
+                  const isNewFormat =
+                    detectionPoints &&
+                    typeof detectionPoints === "object" &&
+                    !Array.isArray(detectionPoints) &&
+                    "lixo_detections" in detectionPoints;
 
-                          const points = contour
-                            .map(
-                              (point: number[]) =>
-                                `${point[0] * imageSize.width},${
-                                  point[1] * imageSize.height
-                                }`
-                            )
-                            .join(" ");
+                  // Build array of all contours
+                  const allContours: Array<{
+                    contour: number[][];
+                    className: string;
+                    color: string;
+                  }> = [];
 
-                          return (
-                            <polygon
-                              key={`lixo-${idx}`}
-                              points={points}
-                              fill="rgba(50, 205, 50, 0.3)"
-                              stroke="#32CD32"
-                              strokeWidth="3"
-                            />
-                          );
-                        })}
+                  if (isNewFormat) {
+                    // New format: process lixo_detections
+                    const newFormatData =
+                      detectionPoints as NewFormatDetectionPoints;
+                    const lixoDetections = newFormatData.lixo_detections || [];
 
-                    {Array.isArray(detectionPoints) &&
-                      detectionPoints
-                        .filter((d: any) => d.class_name !== "lixo")
-                        .map((detection: any, idx: number) => {
-                          const contour = detection.contour_normalized;
-                          if (!Array.isArray(contour) || contour.length === 0)
-                            return null;
+                    lixoDetections.forEach((lixoDetection: LixoDetection) => {
+                      // Add lixo contour
+                      if (lixoDetection.lixo_contour) {
+                        allContours.push({
+                          contour: lixoDetection.lixo_contour,
+                          className: "lixo",
+                          color: "#32CD32",
+                        });
+                      }
 
-                          const points = contour
-                            .map(
-                              (point: number[]) =>
-                                `${point[0] * imageSize.width},${
-                                  point[1] * imageSize.height
-                                }`
-                            )
-                            .join(" ");
+                      // Add sub-class contours
+                      if (lixoDetection.sub_classes) {
+                        lixoDetection.sub_classes.forEach(
+                          (subClass: SubClass) => {
+                            const colorMap: { [key: string]: string } = {
+                              papel: "#4A90E2",
+                              plastico: "#F5A623",
+                              vidro: "#7ED321",
+                              metal: "#D0021B",
+                            };
 
-                          return (
-                            <polygon
-                              key={`class-${idx}`}
-                              points={points}
-                              fill="rgba(0, 120, 255, 0.3)"
-                              stroke="#0078FF"
-                              strokeWidth="3"
-                            />
-                          );
-                        })}
-                  </svg>
-                )}
+                            allContours.push({
+                              contour: subClass.contour,
+                              className: subClass.class_name,
+                              color: colorMap[subClass.class_name] || "#0078FF",
+                            });
+                          }
+                        );
+                      }
+                    });
+                  } else if (Array.isArray(detectionPoints)) {
+                    // Old format: process array of detections
+                    const oldFormatData =
+                      detectionPoints as OldFormatDetection[];
+
+                    oldFormatData.forEach((detection: OldFormatDetection) => {
+                      const contour = detection.contour_normalized;
+                      if (Array.isArray(contour) && contour.length > 0) {
+                        allContours.push({
+                          contour: contour,
+                          className: detection.class_name || "lixo",
+                          color:
+                            detection.class_name === "lixo"
+                              ? "#32CD32"
+                              : "#0078FF",
+                        });
+                      }
+                    });
+                  }
+
+                  return (
+                    <svg
+                      className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                      viewBox={`0 0 ${imageSize.width} ${imageSize.height}`}
+                      preserveAspectRatio="xMidYMid meet"
+                    >
+                      {allContours.map((contourData, idx) => {
+                        const points = contourData.contour
+                          .map(
+                            (point: number[]) =>
+                              `${point[0] * imageSize.width},${
+                                point[1] * imageSize.height
+                              }`
+                          )
+                          .join(" ");
+
+                        return (
+                          <polygon
+                            key={`${contourData.className}-${idx}`}
+                            points={points}
+                            fill={`${contourData.color}33`}
+                            stroke={contourData.color}
+                            strokeWidth="3"
+                          />
+                        );
+                      })}
+                    </svg>
+                  );
+                })()}
             </div>
           </div>
         </div>
