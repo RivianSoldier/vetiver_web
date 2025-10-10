@@ -7,7 +7,12 @@ import { detectionsService } from "@/services/detectionsService";
 export default async function PrivatePage({
   searchParams,
 }: {
-  searchParams: { planning?: string; calculating?: string };
+  searchParams: Promise<{
+    planning?: string;
+    calculating?: string;
+    classes?: string;
+    distance?: string;
+  }>;
 }) {
   const supabase = await createClient();
 
@@ -16,22 +21,39 @@ export default async function PrivatePage({
     redirect("/login");
   }
 
-  const resolvedSearchParams = searchParams;
+  const resolvedSearchParams = await searchParams;
   const isPlanning = resolvedSearchParams.planning === "true";
   const isCalculating = resolvedSearchParams.calculating === "true";
 
   const showCheckboxes = isPlanning && !isCalculating;
 
-  const detections = await detectionsService.getDetectionsByStatus("A coletar");
+  const allDetections = await detectionsService.getDetectionsByStatus(
+    "A coletar"
+  );
+
+  const selectedClasses =
+    resolvedSearchParams.classes?.split(",").filter(Boolean) || [];
+
+  const filteredDetections =
+    selectedClasses.length > 0
+      ? allDetections.filter((detection) =>
+          detection.classes.some(
+            (classItem) =>
+              selectedClasses.includes(classItem.nome) &&
+              classItem.quantidade > 0
+          )
+        )
+      : allDetections;
 
   return (
     <div className="h-screen flex flex-col">
-      <FiltersHeader detections={detections} />
+      <FiltersHeader detections={allDetections} />
       <div className="bg-[#262626] flex flex-1">
         <MapComponent
           isCheckbox={showCheckboxes}
           planejar={isCalculating}
-          detections={detections}
+          detections={filteredDetections}
+          distanceFilter={resolvedSearchParams.distance}
         />
       </div>
     </div>

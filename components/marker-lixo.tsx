@@ -66,8 +66,38 @@ export const MarkerLixo = memo(function MarkerLixo({
   const [showHoverCard, setShowHoverCard] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+  const [address, setAddress] = useState<string>("Carregando endereço...");
 
   const imageSrc = foto || "/foto_example.png";
+
+  const fetchAddress = async (lat: number, lng: number) => {
+    try {
+      const geocoder = new google.maps.Geocoder();
+      const result = await geocoder.geocode({
+        location: { lat, lng },
+      });
+
+      if (result.results && result.results.length > 0) {
+        const formattedAddress = result.results[0].formatted_address;
+        const cleanAddress = formattedAddress
+          .replace(/, Brasil$/, "")
+          .replace(/\d{5}-\d{3},?\s?/, "");
+        setAddress(cleanAddress);
+      } else {
+        setAddress("Endereço não encontrado");
+      }
+    } catch (error) {
+      console.error("Error fetching address:", error);
+      setAddress("Erro ao buscar endereço");
+    }
+  };
+
+  const handleMouseEnter = () => {
+    setShowHoverCard(true);
+    if (address === "Carregando endereço...") {
+      fetchAddress(position.lat, position.lng);
+    }
+  };
 
   const handleImageClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -87,7 +117,7 @@ export const MarkerLixo = memo(function MarkerLixo({
       <AdvancedMarker position={position}>
         <div
           className="relative cursor-pointer"
-          onMouseEnter={() => setShowHoverCard(true)}
+          onMouseEnter={handleMouseEnter}
           onMouseLeave={() => setShowHoverCard(false)}
         >
           <div className="absolute top-[-12px] right-[-4px]">
@@ -168,9 +198,7 @@ export const MarkerLixo = memo(function MarkerLixo({
               </div>
               <div className="flex flex-col w-full">
                 <p className="text-sm text-white font-nunito">Endereço</p>
-                <p className="text-sm text-[#a6a6a6] font-nunito">
-                  Rua Pereira Estéfano, 2400 - Jabaquara
-                </p>
+                <p className="text-sm text-[#a6a6a6] font-nunito">{address}</p>
               </div>
               <div className="flex flex-col w-full">
                 <p className="text-sm text-white font-nunito">Data</p>
@@ -236,14 +264,12 @@ export const MarkerLixo = memo(function MarkerLixo({
                 imageSize.width > 0 &&
                 imageSize.height > 0 &&
                 (() => {
-                  // Check if it's the new format with lixo_detections
                   const isNewFormat =
                     detectionPoints &&
                     typeof detectionPoints === "object" &&
                     !Array.isArray(detectionPoints) &&
                     "lixo_detections" in detectionPoints;
 
-                  // Build array of all contours
                   const allContours: Array<{
                     contour: number[][];
                     className: string;
@@ -251,7 +277,6 @@ export const MarkerLixo = memo(function MarkerLixo({
                   }> = [];
 
                   if (isNewFormat) {
-                    // New format: process lixo_detections
                     const newFormatData =
                       detectionPoints as NewFormatDetectionPoints;
                     const lixoDetections = newFormatData.lixo_detections || [];
@@ -266,7 +291,6 @@ export const MarkerLixo = memo(function MarkerLixo({
                         });
                       }
 
-                      // Add sub-class contours
                       if (lixoDetection.sub_classes) {
                         lixoDetection.sub_classes.forEach(
                           (subClass: SubClass) => {
@@ -287,7 +311,6 @@ export const MarkerLixo = memo(function MarkerLixo({
                       }
                     });
                   } else if (Array.isArray(detectionPoints)) {
-                    // Old format: process array of detections
                     const oldFormatData =
                       detectionPoints as OldFormatDetection[];
 

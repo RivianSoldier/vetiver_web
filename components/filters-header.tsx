@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { HeaderButton } from "./header-button";
-import { Waypoints, MoveRight, X, Filter } from "lucide-react";
+import { Waypoints, MoveRight, Filter } from "lucide-react";
 import { SelectDistanceHeader } from "./select-distance-header";
 import { SelectClassHeader } from "./select-class-header";
 import { SelectedClasses } from "./selected-classes";
@@ -21,14 +21,6 @@ import Image from "next/image";
 import { routesService } from "@/services/routesService";
 import { Detection } from "@/services/detectionsService";
 
-const ALL_CLASSES = [
-  { value: "class1", label: "Classe 1" },
-  { value: "class2", label: "Classe 2" },
-  { value: "class3", label: "Classe 3" },
-  { value: "class4", label: "Classe 4" },
-  { value: "class5", label: "Classe 5" },
-];
-
 interface FiltersHeaderProps {
   detections?: Detection[];
 }
@@ -40,21 +32,55 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
   const isPlanning = searchParams.get("planning") === "true";
   const isCalculating = searchParams.get("calculating") === "true";
 
-  // Memoize mapped classes to prevent recreation on every render
-  const mappedClasses = useMemo(
-    () =>
-      (ALL_CLASSES ?? []).map((c) => ({
-        value: c.value,
-        label: c.label,
-      })),
-    []
-  );
+  const mappedClasses = useMemo(() => {
+    const classesSet = new Set<string>();
+    detections.forEach((detection) => {
+      detection.classes.forEach((classItem) => {
+        if (classItem.quantidade > 0) {
+          classesSet.add(classItem.nome);
+        }
+      });
+    });
+    return Array.from(classesSet).map((className) => ({
+      value: className,
+      label: className.charAt(0).toUpperCase() + className.slice(1),
+    }));
+  }, [detections]);
+
+  const [selectKey, setSelectKey] = useState(Date.now());
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+
+  const initialSelectedClasses = useMemo(() => {
+    const classesParam = searchParams.get("classes");
+    if (!classesParam) return [];
+    const classValues = classesParam.split(",");
+    return mappedClasses.filter((c) => classValues.includes(c.value));
+  }, [searchParams, mappedClasses]);
 
   const [selectedClasses, setSelectedClasses] = useState<
     { value: string; label: string }[]
-  >([]);
-  const [selectKey, setSelectKey] = useState(Date.now());
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  >(initialSelectedClasses);
+
+  const selectedDistance = searchParams.get("distance") || undefined;
+
+  useEffect(() => {
+    setSelectedClasses(initialSelectedClasses);
+  }, [initialSelectedClasses]);
+
+  const handleDistanceChange = useCallback(
+    (distance: string) => {
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      if (distance) {
+        current.set("distance", distance);
+      } else {
+        current.delete("distance");
+      }
+      const search = current.toString();
+      const query = search ? `?${search}` : "";
+      router.replace(`/private${query}`);
+    },
+    [searchParams, router]
+  );
 
   const handlePlanningToggle = useCallback(() => {
     const current = new URLSearchParams(Array.from(searchParams.entries()));
@@ -64,7 +90,6 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
       current.delete("calculating");
     } else {
       current.set("planning", "true");
-      // Refresh data when entering planning mode
       router.refresh();
     }
 
@@ -81,58 +106,40 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
     const search = current.toString();
     const query = search ? `?${search}` : "";
     router.push(`/private${query}`);
-
-    console.log("Calculating route...");
   }, [searchParams, router]);
 
   const handleOpenGoogleMaps = useCallback(() => {
     const markersParam = searchParams.get("markers");
     if (!markersParam) {
-      console.warn("No markers selected for route");
       return;
     }
 
-    // Get selected marker IDs (can be strings or numbers)
-    const markerIds = markersParam.split(",").map((id) => {
-      const numId = parseInt(id);
-      return isNaN(numId) ? id : numId;
-    });
+    const markerIds = markersParam.split(",");
 
     if (markerIds.length === 0) {
-      console.warn("No valid markers selected");
       return;
     }
 
-    // Test marker with id:0
-    const testePosition = { lat: -23.647336, lng: -46.575399 };
-
-    // Get coordinates for selected markers
     const selectedWaypoints = markerIds
       .map((id) => {
-        if (id === 0) return testePosition;
         const marker = detections.find((m) => m.id === id);
         return marker ? { lat: marker.lat, lng: marker.lng } : null;
       })
       .filter(Boolean) as Array<{ lat: number; lng: number }>;
 
     if (selectedWaypoints.length === 0) {
-      console.warn("No valid waypoint coordinates found");
       return;
     }
 
-    // For Google Maps URL, we'll use current location as origin
-    // and create a route through all selected waypoints
     const destination = selectedWaypoints[selectedWaypoints.length - 1];
     const intermediateWaypoints = selectedWaypoints.slice(0, -1);
 
-    // Create Google Maps URL using the routesService method
     const mapsUrl = routesService.createGoogleMapsUrl({
-      origin: { lat: 0, lng: 0 }, // Will be replaced with "Your+Location" in the URL
+      origin: { lat: 0, lng: 0 },
       destination,
       waypoints: intermediateWaypoints,
     });
 
-    // Replace the origin coordinates with current location placeholder
     const finalUrl = mapsUrl.replace("0,0", "Your+Location");
 
     window.open(finalUrl, "_blank");
@@ -143,13 +150,23 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
       if (selectedClasses.some((c) => c.value === classValue)) {
         return;
       }
-      const classToAdd = ALL_CLASSES.find((c) => c.value === classValue);
+      const classToAdd = mappedClasses.find((c) => c.value === classValue);
       if (classToAdd) {
-        setSelectedClasses([...selectedClasses, classToAdd]);
+        const newSelectedClasses = [...selectedClasses, classToAdd];
+        setSelectedClasses(newSelectedClasses);
         setSelectKey(Date.now());
+
+        const current = new URLSearchParams(Array.from(searchParams.entries()));
+        current.set(
+          "classes",
+          newSelectedClasses.map((c) => c.value).join(",")
+        );
+        const search = current.toString();
+        const query = search ? `?${search}` : "";
+        router.replace(`/private${query}`);
       }
     },
-    [selectedClasses]
+    [selectedClasses, mappedClasses, searchParams, router]
   );
 
   const handleRemoveClass = useCallback(
@@ -157,15 +174,37 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
       if (selectedClasses.length === 1) {
         setSelectKey(Date.now());
       }
-      setSelectedClasses(selectedClasses.filter((c) => c.value !== classValue));
+      const newSelectedClasses = selectedClasses.filter(
+        (c) => c.value !== classValue
+      );
+      setSelectedClasses(newSelectedClasses);
+
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      if (newSelectedClasses.length > 0) {
+        current.set(
+          "classes",
+          newSelectedClasses.map((c) => c.value).join(",")
+        );
+      } else {
+        current.delete("classes");
+      }
+      const search = current.toString();
+      const query = search ? `?${search}` : "";
+      router.replace(`/private${query}`);
     },
-    [selectedClasses]
+    [selectedClasses, searchParams, router]
   );
 
   const handleClearAllClasses = useCallback(() => {
     setSelectedClasses([]);
     setSelectKey(Date.now());
-  }, []);
+
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    current.delete("classes");
+    const search = current.toString();
+    const query = search ? `?${search}` : "";
+    router.replace(`/private${query}`);
+  }, [searchParams, router]);
 
   // Mobile Filter Content Component
   const MobileFiltersContent = useMemo(
@@ -175,7 +214,10 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
           <h3 className="text-white font-poppins font-semibold text-md mb-4">
             Distância
           </h3>
-          <SelectDistanceHeader />
+          <SelectDistanceHeader
+            value={selectedDistance}
+            onValueChange={handleDistanceChange}
+          />
         </div>
         <div>
           <h3 className="text-white font-poppins font-semibold text-md mb-4">
@@ -200,6 +242,9 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
       </div>
     ),
     [
+      selectedDistance,
+      handleDistanceChange,
+      mappedClasses,
       selectKey,
       handleAddClass,
       selectedClasses,
@@ -215,7 +260,6 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
         <div className="w-[2px] h-6 sm:h-10 bg-[#262626]" />
 
         {isMobile ? (
-          // Mobile: Sheet with filter button
           <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
             <SheetTrigger asChild>
               <button className="flex items-center gap-2 text-white font-nunito text-sm bg-[#262626] px-3 py-2 rounded-md hover:bg-[#333333] transition-colors">
@@ -244,7 +288,6 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
             </SheetContent>
           </Sheet>
         ) : (
-          // Desktop: Current layout
           <div className="flex flex-row items-start gap-3 flex-1">
             <div className="flex flex-col md:items-start gap-3 flex-1">
               <SelectClassHeader
@@ -264,7 +307,10 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
               )}
             </div>
             <div className="flex flex-col items-start">
-              <SelectDistanceHeader />
+              <SelectDistanceHeader
+                value={selectedDistance}
+                onValueChange={handleDistanceChange}
+              />
             </div>
           </div>
         )}

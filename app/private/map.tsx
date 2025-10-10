@@ -9,14 +9,35 @@ import { RoutePolyline } from "../../components/route-polyline";
 import { RouteInfo } from "@/components/route-info";
 import { Detection } from "@/services/detectionsService";
 
+function calculateDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 export default function MapComponent({
   planejar,
   isCheckbox,
   detections,
+  distanceFilter,
 }: {
   planejar: boolean;
   isCheckbox: boolean;
   detections: Detection[];
+  distanceFilter?: string;
 }) {
   const defaultPosition = { lat: -23.648441, lng: -46.573043 };
   const [position, setPosition] = useState(defaultPosition);
@@ -100,6 +121,23 @@ export default function MapComponent({
     }
   }, []);
 
+  const filteredByDistance = detections.filter((detection) => {
+    if (!distanceFilter) return true;
+
+    const distance = calculateDistance(
+      position.lat,
+      position.lng,
+      detection.lat,
+      detection.lng
+    );
+
+    const [min, max] = distanceFilter.split("-");
+    if (max === "+") {
+      return distance >= parseInt(min);
+    }
+    return distance >= parseInt(min) && distance <= parseInt(max);
+  });
+
   if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
     throw new Error("Google Maps API key is missing.");
   }
@@ -107,7 +145,6 @@ export default function MapComponent({
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
       <div className="w-full h-full relative">
-        {/* Route Information Display */}
         {planejar && (
           <RouteInfo
             routeData={routeData}
@@ -128,7 +165,7 @@ export default function MapComponent({
               <div className="w-5 h-5 bg-gradient-to-r from-[#45BF55] to-[#008D80] rounded-full border-2 border-white shadow-lg"></div>
             </div>
           </AdvancedMarker>
-          {detections.map((item) => (
+          {filteredByDistance.map((item) => (
             <MarkerLixo
               key={item.id}
               id={item.id}

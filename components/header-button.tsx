@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import Image from "next/image";
+import { useState } from "react";
 
 export function HeaderButton({
   mode,
@@ -10,27 +12,49 @@ export function HeaderButton({
   mode: "filled" | "outlined" | "maps" | "outlined-red";
   buttonIcon?: React.ReactNode;
   text: string;
-  onClick?: () => void;
+  onClick?: () => void | Promise<void>;
 }) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleClick = async () => {
+    if (onClick) {
+      setIsLoading(true);
+      try {
+        // Execute the onClick and wait if it returns a promise
+        const result = onClick() as void | Promise<void>;
+        if (result && typeof result === "object" && "then" in result) {
+          await result;
+        } else {
+          // For non-async functions, show spinner for at least 300ms for visual feedback
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
   return (
     <>
       {mode === "filled" && (
         <Button
-          onClick={onClick}
-          className="text-black h-10 rounded-sm font-nunito font-bold text-sm bg-gradient-to-r from-[#008D80] to-[#45BF55] cursor-pointer hover:brightness-110"
+          onClick={handleClick}
+          disabled={isLoading}
+          className="text-black h-10 rounded-sm font-nunito font-bold text-sm bg-gradient-to-r from-[#008D80] to-[#45BF55] cursor-pointer hover:brightness-110 disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          {buttonIcon} {text}
+          {isLoading ? <Spinner /> : buttonIcon} {text}
         </Button>
       )}
 
       {mode === "outlined" && (
         <div className="rounded-sm h-10 bg-gradient-to-r from-[#008D80] to-[#45BF55] p-[2px]">
           <Button
-            onClick={onClick}
-            className="w-full bg-[#0d0d0d] rounded-sm hover:bg-[#262626] hover:brightness-105 cursor-pointer"
+            onClick={handleClick}
+            disabled={isLoading}
+            className="w-full bg-[#0d0d0d] rounded-sm hover:bg-[#262626] hover:brightness-105 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
           >
             <span className="flex items-center gap-2 bg-gradient-to-r from-[#008D80] to-[#45BF55] bg-clip-text text-transparent font-nunito font-bold text-sm">
-              {buttonIcon} {text}
+              {isLoading ? <Spinner className="text-[#008D80]" /> : buttonIcon}{" "}
+              {text}
             </span>
           </Button>
         </div>
@@ -39,11 +63,13 @@ export function HeaderButton({
       {mode === "outlined-red" && (
         <div className="rounded-sm h-10 bg-gradient-to-r from-[#F22742] to-[#FF576D] p-[2px]">
           <Button
-            onClick={onClick}
-            className="w-full bg-[#262626] rounded-sm hover:bg-[#262626] hover:brightness-105 cursor-pointer"
+            onClick={handleClick}
+            disabled={isLoading}
+            className="w-full bg-[#262626] rounded-sm hover:bg-[#262626] hover:brightness-105 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
           >
             <span className="flex items-center gap-2 bg-gradient-to-r from-[#F22742] to-[#FF576D] bg-clip-text text-transparent font-nunito font-bold text-sm">
-              {buttonIcon} {text}
+              {isLoading ? <Spinner className="text-[#F22742]" /> : buttonIcon}{" "}
+              {text}
             </span>
           </Button>
         </div>
@@ -51,10 +77,20 @@ export function HeaderButton({
 
       {mode === "maps" && (
         <Button
-          onClick={onClick}
-          className="text-black h-10 bg-white rounded-sm font-nunito font-bold text-sm cursor-pointer"
+          onClick={handleClick}
+          disabled={isLoading}
+          className="text-black h-10 bg-white rounded-sm font-nunito font-bold text-sm cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          <Image width={24} height={24} src="/google_maps.png" alt="Map Icon" />
+          {isLoading ? (
+            <Spinner className="text-black" />
+          ) : (
+            <Image
+              width={24}
+              height={24}
+              src="/google_maps.png"
+              alt="Map Icon"
+            />
+          )}
           Ver rota no Maps
         </Button>
       )}
