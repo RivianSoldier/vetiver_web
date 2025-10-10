@@ -7,60 +7,20 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useRoutes } from "@/hooks/useRoutes";
 import { RoutePolyline } from "../../components/route-polyline";
 import { RouteInfo } from "@/components/route-info";
-
-const data = [
-  {
-    id: 1,
-    lat: -23.647336,
-    lng: -46.575399,
-    foto: "/foto_example.png",
-    classes: [
-      { nome: "Papelão", quantidade: 2 },
-      { nome: "Plástico", quantidade: 1 },
-      { nome: "Vidro", quantidade: 1 },
-      { nome: "Metal", quantidade: 0 },
-      { nome: "Entulho", quantidade: 0 },
-    ],
-  },
-  {
-    id: 2,
-    lat: -23.645876,
-    lng: -46.570875,
-    foto: "/foto_example.png",
-    classes: [
-      { nome: "Papelão", quantidade: 0 },
-      { nome: "Plástico", quantidade: 1 },
-      { nome: "Vidro", quantidade: 1 },
-      { nome: "Metal", quantidade: 0 },
-      { nome: "Entulho", quantidade: 2 },
-    ],
-  },
-  {
-    id: 3,
-    lat: -23.658239,
-    lng: -46.567282,
-    foto: "/foto_example.png",
-    classes: [
-      { nome: "Papelão", quantidade: 0 },
-      { nome: "Plástico", quantidade: 1 },
-      { nome: "Vidro", quantidade: 1 },
-      { nome: "Metal", quantidade: 0 },
-      { nome: "Entulho", quantidade: 2 },
-    ],
-  },
-];
+import { Detection } from "@/services/detectionsService";
 
 export default function MapComponent({
   planejar,
   isCheckbox,
+  detections,
 }: {
   planejar: boolean;
   isCheckbox: boolean;
+  detections: Detection[];
 }) {
   const defaultPosition = { lat: -23.648441, lng: -46.573043 };
-  const testePosition = { lat: -23.647336, lng: -46.575399 };
   const [position, setPosition] = useState(defaultPosition);
-  const [selectedMarkers, setSelectedMarkers] = useState<Set<number>>(
+  const [selectedMarkers, setSelectedMarkers] = useState<Set<string>>(
     new Set()
   );
   const searchParams = useSearchParams();
@@ -71,16 +31,13 @@ export default function MapComponent({
   useEffect(() => {
     const markersParam = searchParams.get("markers");
     if (markersParam) {
-      const markerIds = markersParam
-        .split(",")
-        .map((id) => parseInt(id))
-        .filter((id) => !isNaN(id));
+      const markerIds = markersParam.split(",");
       setSelectedMarkers(new Set(markerIds));
     }
   }, [searchParams]);
 
   const handleMarkerSelection = useCallback(
-    (markerId: number, selected: boolean) => {
+    (markerId: string, selected: boolean) => {
       const newSelectedMarkers = new Set(selectedMarkers);
       if (selected) {
         newSelectedMarkers.add(markerId);
@@ -107,9 +64,7 @@ export default function MapComponent({
     if (planejar && selectedMarkers.size > 0) {
       const selectedWaypoints = Array.from(selectedMarkers)
         .map((id) => {
-          if (id === 0)
-            return { lat: testePosition.lat, lng: testePosition.lng };
-          const item = data.find((d) => d.id === id);
+          const item = detections.find((d) => d.id === id);
           return item ? { lat: item.lat, lng: item.lng } : null;
         })
         .filter(Boolean) as Array<{ lat: number; lng: number }>;
@@ -120,7 +75,14 @@ export default function MapComponent({
     } else if (!planejar) {
       clearRoute();
     }
-  }, [planejar, selectedMarkers, position, calculateRoute, clearRoute]);
+  }, [
+    planejar,
+    selectedMarkers,
+    position,
+    calculateRoute,
+    clearRoute,
+    detections,
+  ]);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -166,18 +128,7 @@ export default function MapComponent({
               <div className="w-5 h-5 bg-gradient-to-r from-[#45BF55] to-[#008D80] rounded-full border-2 border-white shadow-lg"></div>
             </div>
           </AdvancedMarker>
-          <MarkerLixo
-            id={0}
-            position={testePosition}
-            quantidade={7}
-            planejar={planejar}
-            isCheckbox={isCheckbox}
-            foto={""}
-            classes={[]}
-            isSelected={selectedMarkers.has(0)}
-            onSelectionChange={handleMarkerSelection}
-          />
-          {data.map((item) => (
+          {detections.map((item) => (
             <MarkerLixo
               key={item.id}
               id={item.id}
@@ -192,6 +143,7 @@ export default function MapComponent({
               isCheckbox={isCheckbox}
               isSelected={selectedMarkers.has(item.id)}
               onSelectionChange={handleMarkerSelection}
+              detectionPoints={item.detection_points}
             />
           ))}
 

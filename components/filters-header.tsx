@@ -19,6 +19,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import Image from "next/image";
 import { routesService } from "@/services/routesService";
+import { Detection } from "@/services/detectionsService";
 
 const ALL_CLASSES = [
   { value: "class1", label: "Classe 1" },
@@ -28,28 +29,11 @@ const ALL_CLASSES = [
   { value: "class5", label: "Classe 5" },
 ];
 
-const MARKER_DATA = [
-  {
-    id: 0,
-    lat: -23.647336,
-    lng: -46.575399,
-    name: "Test Marker",
-  },
-  {
-    id: 1,
-    lat: -23.647336,
-    lng: -46.575399,
-    name: "Marker 1",
-  },
-  {
-    id: 2,
-    lat: -23.645876,
-    lng: -46.570875,
-    name: "Marker 2",
-  },
-];
+interface FiltersHeaderProps {
+  detections?: Detection[];
+}
 
-export function FiltersHeader() {
+export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isMobile = useIsMobile();
@@ -80,6 +64,8 @@ export function FiltersHeader() {
       current.delete("calculating");
     } else {
       current.set("planning", "true");
+      // Refresh data when entering planning mode
+      router.refresh();
     }
 
     const search = current.toString();
@@ -106,21 +92,25 @@ export function FiltersHeader() {
       return;
     }
 
-    // Get selected marker IDs
-    const markerIds = markersParam
-      .split(",")
-      .map((id) => parseInt(id))
-      .filter((id) => !isNaN(id));
+    // Get selected marker IDs (can be strings or numbers)
+    const markerIds = markersParam.split(",").map((id) => {
+      const numId = parseInt(id);
+      return isNaN(numId) ? id : numId;
+    });
 
     if (markerIds.length === 0) {
       console.warn("No valid markers selected");
       return;
     }
 
+    // Test marker with id:0
+    const testePosition = { lat: -23.647336, lng: -46.575399 };
+
     // Get coordinates for selected markers
     const selectedWaypoints = markerIds
       .map((id) => {
-        const marker = MARKER_DATA.find((m) => m.id === id);
+        if (id === 0) return testePosition;
+        const marker = detections.find((m) => m.id === id);
         return marker ? { lat: marker.lat, lng: marker.lng } : null;
       })
       .filter(Boolean) as Array<{ lat: number; lng: number }>;
@@ -146,7 +136,7 @@ export function FiltersHeader() {
     const finalUrl = mapsUrl.replace("0,0", "Your+Location");
 
     window.open(finalUrl, "_blank");
-  }, [searchParams]);
+  }, [searchParams, detections]);
 
   const handleAddClass = useCallback(
     (classValue: string) => {
