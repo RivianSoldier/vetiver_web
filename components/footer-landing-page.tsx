@@ -6,7 +6,7 @@ export function LandingPageFooter() {
         <div>
           <Image src="/email_lp.svg" alt="Logo" width={40} height={40} />
         </div>
-        <h1 className="text-white font-nunito">Vetiver@gmail.com</h1>
+        <h1 className="text-white font-nunito">vetiverbrapp@gmail.com</h1>
       </div>
       <div>
         <p className="text-white font-nunito">© Vetiver 2025</p>

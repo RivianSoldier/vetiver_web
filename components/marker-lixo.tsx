@@ -4,6 +4,8 @@ import { Checkbox } from "./ui/checkbox";
 import { useState, memo } from "react";
 import { Table, TableBody, TableCell, TableRow } from "./ui/table";
 import { HeaderButton } from "./header-button";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 // New format detection types (from backend)
 interface SubClass {
@@ -67,6 +69,7 @@ export const MarkerLixo = memo(function MarkerLixo({
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [address, setAddress] = useState<string>("Carregando endereço...");
+  const router = useRouter();
 
   const imageSrc = foto || "/foto_example.png";
 
@@ -110,6 +113,69 @@ export const MarkerLixo = memo(function MarkerLixo({
 
   const handleCheckboxChange = (checked: boolean) => {
     onSelectionChange?.(id, checked);
+  };
+
+  const handleConfirmCollection = async () => {
+    try {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        alert("Você precisa estar autenticado para confirmar a coleta.");
+        return;
+      }
+
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      console.log("Backend URL:", backendUrl);
+      console.log("Detection ID:", id);
+      console.log("User ID:", user.id);
+
+      const url = `${backendUrl}/detections/${id}/collect`;
+      console.log("Calling:", url);
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          collector_user_id: user.id,
+        }),
+        mode: "cors",
+      });
+
+      console.log("Response status:", response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.detail || `Erro ${response.status}: ${response.statusText}`
+        );
+      }
+
+      const result = await response.json();
+      console.log("Collection result:", result);
+      alert(result.message || "Lixo coletado com sucesso!");
+
+      // Refresh the page to update the markers
+      router.refresh();
+    } catch (error) {
+      console.error("Error confirming collection:", error);
+      if (
+        error instanceof TypeError &&
+        error.message.includes("Failed to fetch")
+      ) {
+        alert(
+          "Erro de conexão com o servidor. Verifique se o backend está rodando e se o CORS está configurado corretamente."
+        );
+      } else {
+        alert(
+          error instanceof Error ? error.message : "Erro ao confirmar coleta"
+        );
+      }
+    }
   };
 
   return (
@@ -209,7 +275,11 @@ export const MarkerLixo = memo(function MarkerLixo({
               {planejar && (
                 <>
                   <div className="flex flex-col w-full gap-2">
-                    <HeaderButton mode="filled" text="Confirmar coleta" />
+                    <HeaderButton
+                      mode="filled"
+                      text="Confirmar coleta"
+                      onClick={handleConfirmCollection}
+                    />
                     <HeaderButton mode="outlined-red" text="Não encontrado" />
                   </div>
                 </>
