@@ -40,7 +40,6 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
 
   const [isPlanningPending, startPlanningTransition] = useTransition();
   const [isCalculatingPending, startCalculatingTransition] = useTransition();
-  const [isMapsOpenPending, startMapsOpenTransition] = useTransition();
   const [isFilterPending, startFilterTransition] = useTransition();
 
   const mappedClasses = useMemo(() => {
@@ -132,43 +131,41 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
   }, [searchParams, router, startCalculatingTransition]);
 
   const handleOpenGoogleMaps = useCallback(() => {
-    startMapsOpenTransition(() => {
-      const markersParam = searchParams.get("markers");
-      if (!markersParam) {
-        return;
-      }
+    const markersParam = searchParams.get("markers");
+    if (!markersParam) {
+      return;
+    }
 
-      const markerIds = markersParam.split(",");
+    const markerIds = markersParam.split(",");
 
-      if (markerIds.length === 0) {
-        return;
-      }
+    if (markerIds.length === 0) {
+      return;
+    }
 
-      const selectedWaypoints = markerIds
-        .map((id) => {
-          const marker = detections.find((m) => m.id === id);
-          return marker ? { lat: marker.lat, lng: marker.lng } : null;
-        })
-        .filter(Boolean) as Array<{ lat: number; lng: number }>;
+    const selectedWaypoints = markerIds
+      .map((id) => {
+        const marker = detections.find((m) => m.id === id);
+        return marker ? { lat: marker.lat, lng: marker.lng } : null;
+      })
+      .filter(Boolean) as Array<{ lat: number; lng: number }>;
 
-      if (selectedWaypoints.length === 0) {
-        return;
-      }
+    if (selectedWaypoints.length === 0) {
+      return;
+    }
 
-      const destination = selectedWaypoints[selectedWaypoints.length - 1];
-      const intermediateWaypoints = selectedWaypoints.slice(0, -1);
+    const destination = selectedWaypoints[selectedWaypoints.length - 1];
+    const intermediateWaypoints = selectedWaypoints.slice(0, -1);
 
-      const mapsUrl = routesService.createGoogleMapsUrl({
-        origin: { lat: 0, lng: 0 },
-        destination,
-        waypoints: intermediateWaypoints,
-      });
-
-      const finalUrl = mapsUrl.replace("0,0", "Your+Location");
-
-      window.open(finalUrl, "_blank");
+    const mapsUrl = routesService.createGoogleMapsUrl({
+      origin: { lat: 0, lng: 0 },
+      destination,
+      waypoints: intermediateWaypoints,
     });
-  }, [searchParams, detections, startMapsOpenTransition]);
+
+    const finalUrl = mapsUrl.replace("0,0", "Your+Location");
+
+    window.open(finalUrl, "_blank");
+  }, [searchParams, detections]);
 
   const handleAddClass = useCallback(
     (classValue: string) => {
@@ -384,7 +381,6 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
                 mode="maps"
                 text="Ver rota no Maps"
                 onClick={handleOpenGoogleMaps}
-                loading={isMapsOpenPending}
               />
             </div>
           ) : isPlanning ? (
