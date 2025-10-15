@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 
 const distancias = [
   { value: "all", label: "Todas as distâncias" },
@@ -22,11 +23,13 @@ const distancias = [
 interface SelectDistanceHeaderProps {
   value?: string;
   onValueChange?: (value: string) => void;
+  loading?: boolean;
 }
 
 export function SelectDistanceHeader({
   value,
   onValueChange,
+  loading = false,
 }: SelectDistanceHeaderProps) {
   const handleValueChange = (newValue: string) => {
     if (newValue === "all") {
@@ -37,9 +40,17 @@ export function SelectDistanceHeader({
   };
 
   return (
-    <Select value={value || "all"} onValueChange={handleValueChange}>
-      <SelectTrigger className="w-fit text-sm font-nunito font-bold cursor-pointer flex items-start h-full">
-        <SelectValue placeholder="Distância" />
+    <Select
+      value={value || "all"}
+      onValueChange={handleValueChange}
+      disabled={loading}
+    >
+      <SelectTrigger className="w-fit text-sm font-nunito font-bold cursor-pointer flex items-start h-full disabled:opacity-70 disabled:cursor-not-allowed">
+        {loading ? (
+          <Spinner className="text-[#008D80]" />
+        ) : (
+          <SelectValue placeholder="Distância" />
+        )}
       </SelectTrigger>
       <SelectContent className="bg-[#262626] border-2 border-[#404040]">
         <SelectGroup>

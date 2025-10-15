@@ -8,28 +8,30 @@ export function HeaderButton({
   buttonIcon = null,
   text,
   onClick,
+  loading = false,
 }: {
   mode: "filled" | "outlined" | "maps" | "outlined-red";
   buttonIcon?: React.ReactNode;
   text: string;
   onClick?: () => void | Promise<void>;
+  loading?: boolean;
 }) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [internalLoading, setInternalLoading] = useState(false);
+
+  const isLoading = loading || internalLoading;
 
   const handleClick = async () => {
     if (onClick) {
-      setIsLoading(true);
+      setInternalLoading(true);
       try {
-        // Execute the onClick and wait if it returns a promise
         const result = onClick() as void | Promise<void>;
         if (result && typeof result === "object" && "then" in result) {
           await result;
         } else {
-          // For non-async functions, show spinner for at least 300ms for visual feedback
           await new Promise((resolve) => setTimeout(resolve, 300));
         }
       } finally {
-        setIsLoading(false);
+        setInternalLoading(false);
       }
     }
   };

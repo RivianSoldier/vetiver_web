@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import {
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  useTransition,
+} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { HeaderButton } from "./header-button";
@@ -31,6 +37,11 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
   const isMobile = useIsMobile();
   const isPlanning = searchParams.get("planning") === "true";
   const isCalculating = searchParams.get("calculating") === "true";
+
+  const [isPlanningPending, startPlanningTransition] = useTransition();
+  const [isCalculatingPending, startCalculatingTransition] = useTransition();
+  const [isMapsOpenPending, startMapsOpenTransition] = useTransition();
+  const [isFilterPending, startFilterTransition] = useTransition();
 
   const mappedClasses = useMemo(() => {
     const classesSet = new Set<string>();
@@ -69,81 +80,95 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
 
   const handleDistanceChange = useCallback(
     (distance: string) => {
-      const current = new URLSearchParams(Array.from(searchParams.entries()));
-      if (distance) {
-        current.set("distance", distance);
-      } else {
-        current.delete("distance");
-      }
-      const search = current.toString();
-      const query = search ? `?${search}` : "";
-      router.replace(`/private${query}`);
+      startFilterTransition(() => {
+        const current = new URLSearchParams(Array.from(searchParams.entries()));
+        if (distance) {
+          current.set("distance", distance);
+        } else {
+          current.delete("distance");
+        }
+        const search = current.toString();
+        const query = search ? `?${search}` : "";
+        router.replace(`/private${query}`);
+      });
     },
-    [searchParams, router]
+    [searchParams, router, startFilterTransition]
   );
 
   const handlePlanningToggle = useCallback(() => {
-    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    startPlanningTransition(() => {
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
 
-    if (isPlanning || isCalculating) {
-      current.delete("planning");
-      current.delete("calculating");
-    } else {
-      current.set("planning", "true");
-      router.refresh();
-    }
+      if (isPlanning || isCalculating) {
+        current.delete("planning");
+        current.delete("calculating");
+      } else {
+        current.set("planning", "true");
+        router.refresh();
+      }
 
-    const search = current.toString();
-    const query = search ? `?${search}` : "";
-    router.push(`/private${query}`);
-  }, [searchParams, isPlanning, isCalculating, router]);
+      const search = current.toString();
+      const query = search ? `?${search}` : "";
+      router.push(`/private${query}`);
+    });
+  }, [
+    searchParams,
+    isPlanning,
+    isCalculating,
+    router,
+    startPlanningTransition,
+  ]);
 
   const handleCalculateRoute = useCallback(() => {
-    const current = new URLSearchParams(Array.from(searchParams.entries()));
-    current.set("calculating", "true");
-    current.delete("planning");
+    startCalculatingTransition(() => {
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      current.set("calculating", "true");
+      current.delete("planning");
 
-    const search = current.toString();
-    const query = search ? `?${search}` : "";
-    router.push(`/private${query}`);
-  }, [searchParams, router]);
+      const search = current.toString();
+      const query = search ? `?${search}` : "";
+      router.push(`/private${query}`);
+    });
+  }, [searchParams, router, startCalculatingTransition]);
 
   const handleOpenGoogleMaps = useCallback(() => {
-    const markersParam = searchParams.get("markers");
-    if (!markersParam) {
-      return;
-    }
+    startMapsOpenTransition(() => {
+      const markersParam = searchParams.get("markers");
+      if (!markersParam) {
+        return;
+      }
 
-    const markerIds = markersParam.split(",");
+      const markerIds = markersParam.split(",");
 
-    if (markerIds.length === 0) {
-      return;
-    }
+      if (markerIds.length === 0) {
+        return;
+      }
 
-    const selectedWaypoints = markerIds
-      .map((id) => {
-        const marker = detections.find((m) => m.id === id);
-        return marker ? { lat: marker.lat, lng: marker.lng } : null;
-      })
-      .filter(Boolean) as Array<{ lat: number; lng: number }>;
+      const selectedWaypoints = markerIds
+        .map((id) => {
+          const marker = detections.find((m) => m.id === id);
+          return marker ? { lat: marker.lat, lng: marker.lng } : null;
+        })
+        .filter(Boolean) as Array<{ lat: number; lng: number }>;
 
-    if (selectedWaypoints.length === 0) {
-      return;
-    }
+      if (selectedWaypoints.length === 0) {
+        return;
+      }
 
-    const destination = selectedWaypoints[selectedWaypoints.length - 1];
-    const intermediateWaypoints = selectedWaypoints.slice(0, -1);
+      const destination = selectedWaypoints[selectedWaypoints.length - 1];
+      const intermediateWaypoints = selectedWaypoints.slice(0, -1);
 
-    const mapsUrl = routesService.createGoogleMapsUrl({
-      origin: { lat: 0, lng: 0 },
-      destination,
-      waypoints: intermediateWaypoints,
+      const mapsUrl = routesService.createGoogleMapsUrl({
+        origin: { lat: 0, lng: 0 },
+        destination,
+        waypoints: intermediateWaypoints,
+      });
+
+      const finalUrl = mapsUrl.replace("0,0", "Your+Location");
+
+      window.open(finalUrl, "_blank");
     });
-
-    const finalUrl = mapsUrl.replace("0,0", "Your+Location");
-
-    window.open(finalUrl, "_blank");
-  }, [searchParams, detections]);
+  }, [searchParams, detections, startMapsOpenTransition]);
 
   const handleAddClass = useCallback(
     (classValue: string) => {
@@ -156,17 +181,27 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
         setSelectedClasses(newSelectedClasses);
         setSelectKey(Date.now());
 
-        const current = new URLSearchParams(Array.from(searchParams.entries()));
-        current.set(
-          "classes",
-          newSelectedClasses.map((c) => c.value).join(",")
-        );
-        const search = current.toString();
-        const query = search ? `?${search}` : "";
-        router.replace(`/private${query}`);
+        startFilterTransition(() => {
+          const current = new URLSearchParams(
+            Array.from(searchParams.entries())
+          );
+          current.set(
+            "classes",
+            newSelectedClasses.map((c) => c.value).join(",")
+          );
+          const search = current.toString();
+          const query = search ? `?${search}` : "";
+          router.replace(`/private${query}`);
+        });
       }
     },
-    [selectedClasses, mappedClasses, searchParams, router]
+    [
+      selectedClasses,
+      mappedClasses,
+      searchParams,
+      router,
+      startFilterTransition,
+    ]
   );
 
   const handleRemoveClass = useCallback(
@@ -179,32 +214,36 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
       );
       setSelectedClasses(newSelectedClasses);
 
-      const current = new URLSearchParams(Array.from(searchParams.entries()));
-      if (newSelectedClasses.length > 0) {
-        current.set(
-          "classes",
-          newSelectedClasses.map((c) => c.value).join(",")
-        );
-      } else {
-        current.delete("classes");
-      }
-      const search = current.toString();
-      const query = search ? `?${search}` : "";
-      router.replace(`/private${query}`);
+      startFilterTransition(() => {
+        const current = new URLSearchParams(Array.from(searchParams.entries()));
+        if (newSelectedClasses.length > 0) {
+          current.set(
+            "classes",
+            newSelectedClasses.map((c) => c.value).join(",")
+          );
+        } else {
+          current.delete("classes");
+        }
+        const search = current.toString();
+        const query = search ? `?${search}` : "";
+        router.replace(`/private${query}`);
+      });
     },
-    [selectedClasses, searchParams, router]
+    [selectedClasses, searchParams, router, startFilterTransition]
   );
 
   const handleClearAllClasses = useCallback(() => {
     setSelectedClasses([]);
     setSelectKey(Date.now());
 
-    const current = new URLSearchParams(Array.from(searchParams.entries()));
-    current.delete("classes");
-    const search = current.toString();
-    const query = search ? `?${search}` : "";
-    router.replace(`/private${query}`);
-  }, [searchParams, router]);
+    startFilterTransition(() => {
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      current.delete("classes");
+      const search = current.toString();
+      const query = search ? `?${search}` : "";
+      router.replace(`/private${query}`);
+    });
+  }, [searchParams, router, startFilterTransition]);
 
   // Mobile Filter Content Component
   const MobileFiltersContent = useMemo(
@@ -217,6 +256,7 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
           <SelectDistanceHeader
             value={selectedDistance}
             onValueChange={handleDistanceChange}
+            loading={isFilterPending}
           />
         </div>
         <div>
@@ -228,6 +268,7 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
             key={selectKey}
             onClassSelect={handleAddClass}
             selectedClasses={selectedClasses}
+            loading={isFilterPending}
           />
           {selectedClasses.length > 0 && (
             <div className="mt-4">
@@ -235,6 +276,7 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
                 selectedClasses={selectedClasses}
                 onRemoveClass={handleRemoveClass}
                 onClearAll={handleClearAllClasses}
+                loading={isFilterPending}
               />
             </div>
           )}
@@ -250,6 +292,7 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
       selectedClasses,
       handleRemoveClass,
       handleClearAllClasses,
+      isFilterPending,
     ]
   );
 
@@ -295,6 +338,7 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
                 key={selectKey}
                 onClassSelect={handleAddClass}
                 selectedClasses={selectedClasses}
+                loading={isFilterPending}
               />
               {selectedClasses.length > 0 && (
                 <div className="flex flex-row items-center flex-wrap">
@@ -302,6 +346,7 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
                     selectedClasses={selectedClasses}
                     onRemoveClass={handleRemoveClass}
                     onClearAll={handleClearAllClasses}
+                    loading={isFilterPending}
                   />
                 </div>
               )}
@@ -310,6 +355,7 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
               <SelectDistanceHeader
                 value={selectedDistance}
                 onValueChange={handleDistanceChange}
+                loading={isFilterPending}
               />
             </div>
           </div>
@@ -332,11 +378,13 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
                 }
                 text="Cancelar"
                 onClick={handlePlanningToggle}
+                loading={isPlanningPending}
               />
               <HeaderButton
                 mode="maps"
                 text="Ver rota no Maps"
                 onClick={handleOpenGoogleMaps}
+                loading={isMapsOpenPending}
               />
             </div>
           ) : isPlanning ? (
@@ -348,12 +396,14 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
                 }
                 text="Mapa"
                 onClick={handlePlanningToggle}
+                loading={isPlanningPending}
               />
               <HeaderButton
                 mode="filled"
                 buttonIcon={<MoveRight />}
                 text="Calcular Rota"
                 onClick={handleCalculateRoute}
+                loading={isCalculatingPending}
               />
             </div>
           ) : (
@@ -362,6 +412,7 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
               buttonIcon={<Waypoints />}
               text="Planejar Rota"
               onClick={handlePlanningToggle}
+              loading={isPlanningPending}
             />
           )}
         </div>

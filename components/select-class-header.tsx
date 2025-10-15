@@ -10,22 +10,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 
 interface SelectClassHeaderProps {
   classes: { value: string; label: string }[];
   onClassSelect: (value: string) => void;
   selectedClasses: { value: string; label: string }[];
+  loading?: boolean;
 }
 
 export function SelectClassHeader({
   classes,
   onClassSelect,
   selectedClasses,
+  loading = false,
 }: SelectClassHeaderProps) {
   return (
-    <Select onValueChange={onClassSelect}>
-      <SelectTrigger className="text-sm font-nunito font-bold cursor-pointer">
-        <SelectValue placeholder="Classe" />
+    <Select onValueChange={onClassSelect} disabled={loading}>
+      <SelectTrigger className="text-sm font-nunito font-bold cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
+        {loading ? (
+          <Spinner className="text-[#008D80]" />
+        ) : (
+          <SelectValue placeholder="Classe" />
+        )}
       </SelectTrigger>
       <SelectContent className="bg-[#262626] border-2 border-[#404040]">
         <SelectGroup>
