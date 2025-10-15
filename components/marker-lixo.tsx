@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableRow } from "./ui/table";
 import { HeaderButton } from "./header-button";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 // New format detection types (from backend)
 interface SubClass {
@@ -115,25 +116,101 @@ export const MarkerLixo = memo(function MarkerLixo({
     onSelectionChange?.(id, checked);
   };
 
+  // Calculate distance between two coordinates using Haversine formula
+  const calculateDistance = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ): number => {
+    const R = 6371; // Earth's radius in km
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in km
+  };
+
   const handleConfirmCollection = async () => {
     try {
+      // Check authentication first
       const supabase = createClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
       if (!user) {
-        alert("Você precisa estar autenticado para confirmar a coleta.");
+        toast.error("Autenticação necessária", {
+          description:
+            "Você precisa estar autenticado para confirmar a coleta.",
+        });
         return;
       }
 
+      // Get user's current location
+      const getCurrentPosition = (): Promise<GeolocationPosition> => {
+        return new Promise((resolve, reject) => {
+          if (!navigator.geolocation) {
+            reject(new Error("Geolocalização não suportada"));
+          }
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0,
+          });
+        });
+      };
+
+      toast.loading("Verificando sua localização...", { id: "location-check" });
+
+      let userPosition;
+      try {
+        userPosition = await getCurrentPosition();
+      } catch (geoError) {
+        toast.dismiss("location-check");
+        toast.error("Erro ao obter localização", {
+          description:
+            "Permita o acesso à sua localização para confirmar a coleta.",
+        });
+        return;
+      }
+
+      const userLat = userPosition.coords.latitude;
+      const userLon = userPosition.coords.longitude;
+
+      // Calculate distance between user and marker
+      const distance = calculateDistance(
+        userLat,
+        userLon,
+        position.lat,
+        position.lng
+      );
+
+      console.log(`Distance to marker: ${distance * 1000}m`);
+
+      // Check if user is within acceptable radius (50 meters = 0.05 km)
+      const MAX_DISTANCE_KM = 0.05; // 50 meters
+
+      if (distance > MAX_DISTANCE_KM) {
+        toast.dismiss("location-check");
+        toast.error("Você não está no local", {
+          description:
+            "Aproxime-se do ponto de coleta para confirmar a remoção do lixo.",
+        });
+        return;
+      }
+
+      toast.dismiss("location-check");
+      toast.loading("Confirmando coleta...", { id: "confirm-collection" });
+
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-      console.log("Backend URL:", backendUrl);
-      console.log("Detection ID:", id);
-      console.log("User ID:", user.id);
 
       const url = `${backendUrl}/detections/${id}/collect`;
-      console.log("Calling:", url);
 
       const response = await fetch(url, {
         method: "POST",
@@ -146,8 +223,6 @@ export const MarkerLixo = memo(function MarkerLixo({
         mode: "cors",
       });
 
-      console.log("Response status:", response.status);
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
@@ -157,23 +232,35 @@ export const MarkerLixo = memo(function MarkerLixo({
 
       const result = await response.json();
       console.log("Collection result:", result);
-      alert(result.message || "Lixo coletado com sucesso!");
+
+      toast.dismiss("confirm-collection");
+      toast.success("Coleta confirmada!", {
+        description: "O lixo foi marcado como coletado com sucesso.",
+      });
 
       // Refresh the page to update the markers
-      router.refresh();
+      setTimeout(() => {
+        router.refresh();
+      }, 1000);
     } catch (error) {
       console.error("Error confirming collection:", error);
+      toast.dismiss("confirm-collection");
+
       if (
         error instanceof TypeError &&
         error.message.includes("Failed to fetch")
       ) {
-        alert(
-          "Erro de conexão com o servidor. Verifique se o backend está rodando e se o CORS está configurado corretamente."
-        );
+        toast.error("Erro de conexão", {
+          description:
+            "Não foi possível conectar ao servidor. Tente novamente.",
+        });
       } else {
-        alert(
-          error instanceof Error ? error.message : "Erro ao confirmar coleta"
-        );
+        toast.error("Erro ao confirmar coleta", {
+          description:
+            error instanceof Error
+              ? error.message
+              : "Ocorreu um erro inesperado.",
+        });
       }
     }
   };

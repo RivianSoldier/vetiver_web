@@ -138,6 +138,14 @@ export default function MapComponent({
     return distance >= parseInt(min) && distance <= parseInt(max);
   });
 
+  // When showing route (planejar=true/calculating), only show selected markers
+  // Otherwise show all filtered markers
+  const markersToDisplay = planejar
+    ? filteredByDistance.filter((detection) =>
+        selectedMarkers.has(detection.id)
+      )
+    : filteredByDistance;
+
   if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
     throw new Error("Google Maps API key is missing.");
   }
@@ -165,7 +173,7 @@ export default function MapComponent({
               <div className="w-5 h-5 bg-gradient-to-r from-[#45BF55] to-[#008D80] rounded-full border-2 border-white shadow-lg"></div>
             </div>
           </AdvancedMarker>
-          {filteredByDistance.map((item) => (
+          {markersToDisplay.map((item) => (
             <MarkerLixo
               key={item.id}
               id={item.id}
