@@ -131,9 +131,16 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
   }, [searchParams, router, startCalculatingTransition]);
 
   const handleOpenGoogleMaps = useCallback(() => {
+    console.log("handleOpenGoogleMaps called");
+    console.log(
+      "All search params:",
+      Object.fromEntries(searchParams.entries())
+    );
+
     const markersParam = searchParams.get("markers");
     if (!markersParam) {
-      console.log("No markers parameter found");
+      console.log("No markers parameter found in searchParams");
+      console.log("Current URL:", window.location.href);
       return;
     }
 
