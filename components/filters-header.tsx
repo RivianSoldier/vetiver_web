@@ -133,12 +133,15 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
   const handleOpenGoogleMaps = useCallback(() => {
     const markersParam = searchParams.get("markers");
     if (!markersParam) {
+      console.log("No markers parameter found");
       return;
     }
 
     const markerIds = markersParam.split(",");
+    console.log("Marker IDs:", markerIds);
 
     if (markerIds.length === 0) {
+      console.log("No marker IDs");
       return;
     }
 
@@ -149,7 +152,10 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
       })
       .filter(Boolean) as Array<{ lat: number; lng: number }>;
 
+    console.log("Selected waypoints:", selectedWaypoints);
+
     if (selectedWaypoints.length === 0) {
+      console.log("No selected waypoints");
       return;
     }
 
@@ -164,7 +170,23 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
 
     const finalUrl = mapsUrl.replace("0,0", "Your+Location");
 
-    window.open(finalUrl, "_blank");
+    console.log("Opening Google Maps URL:", finalUrl);
+
+    // Try to open in new tab
+    const newWindow = window.open(finalUrl, "_blank", "noopener,noreferrer");
+
+    // Check if popup was blocked
+    if (
+      !newWindow ||
+      newWindow.closed ||
+      typeof newWindow.closed === "undefined"
+    ) {
+      console.error("Popup blocked! Attempting fallback...");
+      // Fallback: try to navigate in the same window
+      window.location.href = finalUrl;
+    } else {
+      console.log("Window opened successfully");
+    }
   }, [searchParams, detections]);
 
   const handleAddClass = useCallback(
