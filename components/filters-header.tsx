@@ -180,21 +180,8 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
 
     console.log("Opening Google Maps URL:", finalUrl);
 
-    // Try to open in new tab
-    const newWindow = window.open(finalUrl, "_blank", "noopener,noreferrer");
-
-    // Check if popup was blocked
-    if (
-      !newWindow ||
-      newWindow.closed ||
-      typeof newWindow.closed === "undefined"
-    ) {
-      console.error("Popup blocked! Attempting fallback...");
-      // Fallback: try to navigate in the same window
-      window.location.href = finalUrl;
-    } else {
-      console.log("Window opened successfully");
-    }
+    // Open in new tab
+    window.open(finalUrl, "_blank", "noopener,noreferrer");
   }, [detections]);
 
   const handleAddClass = useCallback(

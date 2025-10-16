@@ -59,8 +59,6 @@ export default function MapComponent({
 
   const handleMarkerSelection = useCallback(
     (markerId: string, selected: boolean) => {
-      console.log("Marker selection:", markerId, selected);
-
       const newSelectedMarkers = new Set(selectedMarkers);
       if (selected) {
         newSelectedMarkers.add(markerId);
@@ -69,30 +67,23 @@ export default function MapComponent({
       }
       setSelectedMarkers(newSelectedMarkers);
 
-      // Read from current URL to preserve all existing params
+      // Use history.replaceState for faster URL updates
       const current = new URLSearchParams(window.location.search);
       if (newSelectedMarkers.size > 0) {
         const markersString = Array.from(newSelectedMarkers).join(",");
         current.set("markers", markersString);
-        console.log("Setting markers in URL:", markersString);
       } else {
         current.delete("markers");
-        console.log("Removing markers from URL");
       }
 
       const search = current.toString();
       const query = search ? `?${search}` : "";
       const newUrl = `/private${query}`;
 
-      console.log("Navigating to:", newUrl);
-      router.replace(newUrl);
-
-      // Verify URL was updated
-      setTimeout(() => {
-        console.log("URL after replace:", window.location.href);
-      }, 100);
+      // Use native history API for instant update without Next.js overhead
+      window.history.replaceState(null, "", newUrl);
     },
-    [selectedMarkers, router]
+    [selectedMarkers]
   );
 
   useEffect(() => {
