@@ -120,7 +120,9 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
 
   const handleCalculateRoute = useCallback(() => {
     startCalculatingTransition(() => {
-      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      // Read from window.location.search to get the most current URL params
+      // This ensures we capture markers that were just added via router.replace()
+      const current = new URLSearchParams(window.location.search);
       current.set("calculating", "true");
       current.delete("planning");
 
@@ -128,19 +130,18 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
       const query = search ? `?${search}` : "";
       router.push(`/private${query}`);
     });
-  }, [searchParams, router, startCalculatingTransition]);
+  }, [router, startCalculatingTransition]);
 
   const handleOpenGoogleMaps = useCallback(() => {
-    console.log("handleOpenGoogleMaps called");
-    console.log(
-      "All search params:",
-      Object.fromEntries(searchParams.entries())
-    );
+    // Read directly from window.location.search to ensure we have the latest URL params
+    const currentParams = new URLSearchParams(window.location.search);
+    const markersParam = currentParams.get("markers");
 
-    const markersParam = searchParams.get("markers");
+    console.log("Current URL:", window.location.href);
+    console.log("Markers from URL:", markersParam);
+
     if (!markersParam) {
-      console.log("No markers parameter found in searchParams");
-      console.log("Current URL:", window.location.href);
+      console.log("No markers parameter found in URL");
       return;
     }
 
@@ -194,7 +195,7 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
     } else {
       console.log("Window opened successfully");
     }
-  }, [searchParams, detections]);
+  }, [detections]);
 
   const handleAddClass = useCallback(
     (classValue: string) => {
