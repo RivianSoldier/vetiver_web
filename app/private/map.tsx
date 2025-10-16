@@ -59,6 +59,8 @@ export default function MapComponent({
 
   const handleMarkerSelection = useCallback(
     (markerId: string, selected: boolean) => {
+      console.log("Marker selection:", markerId, selected);
+
       const newSelectedMarkers = new Set(selectedMarkers);
       if (selected) {
         newSelectedMarkers.add(markerId);
@@ -67,18 +69,30 @@ export default function MapComponent({
       }
       setSelectedMarkers(newSelectedMarkers);
 
-      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      // Read from current URL to preserve all existing params
+      const current = new URLSearchParams(window.location.search);
       if (newSelectedMarkers.size > 0) {
-        current.set("markers", Array.from(newSelectedMarkers).join(","));
+        const markersString = Array.from(newSelectedMarkers).join(",");
+        current.set("markers", markersString);
+        console.log("Setting markers in URL:", markersString);
       } else {
         current.delete("markers");
+        console.log("Removing markers from URL");
       }
 
       const search = current.toString();
       const query = search ? `?${search}` : "";
-      router.replace(`/private${query}`);
+      const newUrl = `/private${query}`;
+
+      console.log("Navigating to:", newUrl);
+      router.replace(newUrl);
+
+      // Verify URL was updated
+      setTimeout(() => {
+        console.log("URL after replace:", window.location.href);
+      }, 100);
     },
-    [selectedMarkers, searchParams, router]
+    [selectedMarkers, router]
   );
 
   useEffect(() => {
