@@ -439,16 +439,12 @@ export const MarkerLixo = memo(function MarkerLixo({
                     const lixoDetections = newFormatData.lixo_detections || [];
 
                     lixoDetections.forEach((lixoDetection: LixoDetection) => {
-                      // Add lixo contour
-                      if (lixoDetection.lixo_contour) {
-                        allContours.push({
-                          contour: lixoDetection.lixo_contour,
-                          className: "lixo",
-                          color: "#32CD32",
-                        });
-                      }
-
-                      if (lixoDetection.sub_classes) {
+                      // Only add lixo contour if there are no sub_classes
+                      // If sub_classes exist, only add those
+                      if (
+                        lixoDetection.sub_classes &&
+                        lixoDetection.sub_classes.length > 0
+                      ) {
                         lixoDetection.sub_classes.forEach(
                           (subClass: SubClass) => {
                             const colorMap: { [key: string]: string } = {
@@ -465,6 +461,13 @@ export const MarkerLixo = memo(function MarkerLixo({
                             });
                           }
                         );
+                      } else if (lixoDetection.lixo_contour) {
+                        // Only add lixo contour if no sub_classes
+                        allContours.push({
+                          contour: lixoDetection.lixo_contour,
+                          className: "lixo",
+                          color: "#32CD32",
+                        });
                       }
                     });
                   } else if (Array.isArray(detectionPoints)) {

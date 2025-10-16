@@ -137,16 +137,12 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
     const currentParams = new URLSearchParams(window.location.search);
     const markersParam = currentParams.get("markers");
 
-    console.log("Current URL:", window.location.href);
-    console.log("Markers from URL:", markersParam);
-
     if (!markersParam) {
       console.log("No markers parameter found in URL");
       return;
     }
 
     const markerIds = markersParam.split(",");
-    console.log("Marker IDs:", markerIds);
 
     if (markerIds.length === 0) {
       console.log("No marker IDs");
@@ -159,8 +155,6 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
         return marker ? { lat: marker.lat, lng: marker.lng } : null;
       })
       .filter(Boolean) as Array<{ lat: number; lng: number }>;
-
-    console.log("Selected waypoints:", selectedWaypoints);
 
     if (selectedWaypoints.length === 0) {
       console.log("No selected waypoints");
@@ -177,8 +171,6 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
     });
 
     const finalUrl = mapsUrl.replace("0,0", "Your+Location");
-
-    console.log("Opening Google Maps URL:", finalUrl);
 
     // Open in new tab
     window.open(finalUrl, "_blank", "noopener,noreferrer");
