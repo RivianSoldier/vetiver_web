@@ -47,7 +47,10 @@ export default async function PrivatePage({
 
   return (
     <div className="h-screen flex flex-col">
-      <FiltersHeader detections={allDetections} />
+      <FiltersHeader
+        detections={allDetections}
+        filteredDetections={filteredDetections}
+      />
       <div className="bg-[#262626] flex flex-1">
         <MapComponent
           isCheckbox={showCheckboxes}

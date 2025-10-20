@@ -10,7 +10,7 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { HeaderButton } from "./header-button";
-import { Waypoints, MoveRight, Filter } from "lucide-react";
+import { Waypoints, MoveRight, Filter, Bot } from "lucide-react";
 import { SelectDistanceHeader } from "./select-distance-header";
 import { SelectClassHeader } from "./select-class-header";
 import { SelectedClasses } from "./selected-classes";
@@ -29,9 +29,13 @@ import { Detection } from "@/services/detectionsService";
 
 interface FiltersHeaderProps {
   detections?: Detection[];
+  filteredDetections?: Detection[];
 }
 
-export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
+export function FiltersHeader({
+  detections = [],
+  filteredDetections = [],
+}: FiltersHeaderProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isMobile = useIsMobile();
@@ -101,6 +105,7 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
       if (isPlanning || isCalculating) {
         current.delete("planning");
         current.delete("calculating");
+        current.delete("markers");
       } else {
         current.set("planning", "true");
         router.refresh();
@@ -250,6 +255,32 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
       router.replace(`/private${query}`);
     });
   }, [searchParams, router, startFilterTransition]);
+
+  const handleAutomaticRoute = useCallback(() => {
+    startCalculatingTransition(() => {
+      // Get all visible filtered marker IDs
+      const visibleMarkerIds = filteredDetections.map((d) => d.id);
+
+      if (visibleMarkerIds.length === 0) {
+        console.log("No markers to route");
+        return;
+      }
+
+      // Set markers and calculating state
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      current.set("markers", visibleMarkerIds.join(","));
+      current.set("calculating", "true");
+      current.delete("planning");
+
+      const search = current.toString();
+      const query = search ? `?${search}` : "";
+      router.push(`/private${query}`);
+    });
+  }, [filteredDetections, searchParams, router, startCalculatingTransition]);
+
+  // Check if filters are active
+  const hasActiveFilters =
+    selectedClasses.length > 0 || selectedDistance !== undefined;
 
   // Mobile Filter Content Component
   const MobileFiltersContent = useMemo(
@@ -412,13 +443,23 @@ export function FiltersHeader({ detections = [] }: FiltersHeaderProps) {
               />
             </div>
           ) : (
-            <HeaderButton
-              mode="filled"
-              buttonIcon={<Waypoints />}
-              text="Planejar Rota"
-              onClick={handlePlanningToggle}
-              loading={isPlanningPending}
-            />
+            <div className="flex flex-col md:flex-row gap-4 w-full">
+              <HeaderButton
+                mode="filled"
+                buttonIcon={<Bot />}
+                text="Automatizar Rota"
+                onClick={handleAutomaticRoute}
+                loading={isCalculatingPending}
+                disabled={!hasActiveFilters || filteredDetections.length === 0}
+              />
+              <HeaderButton
+                mode="filled"
+                buttonIcon={<Waypoints />}
+                text="Planejar Rota"
+                onClick={handlePlanningToggle}
+                loading={isPlanningPending}
+              />
+            </div>
           )}
         </div>
       </div>

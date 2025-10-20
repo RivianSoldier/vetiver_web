@@ -9,16 +9,19 @@ export function HeaderButton({
   text,
   onClick,
   loading = false,
+  disabled = false,
 }: {
   mode: "filled" | "outlined" | "maps" | "outlined-red";
   buttonIcon?: React.ReactNode;
   text: string;
   onClick?: () => void | Promise<void>;
   loading?: boolean;
+  disabled?: boolean;
 }) {
   const [internalLoading, setInternalLoading] = useState(false);
 
   const isLoading = loading || internalLoading;
+  const isDisabled = disabled || isLoading;
 
   const handleClick = async () => {
     if (onClick) {
@@ -40,7 +43,7 @@ export function HeaderButton({
       {mode === "filled" && (
         <Button
           onClick={handleClick}
-          disabled={isLoading}
+          disabled={isDisabled}
           className="text-black h-10 rounded-sm font-nunito font-bold text-sm bg-gradient-to-r from-[#008D80] to-[#45BF55] cursor-pointer hover:brightness-110 disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {isLoading ? <Spinner /> : buttonIcon} {text}
@@ -51,7 +54,7 @@ export function HeaderButton({
         <div className="rounded-sm h-10 bg-gradient-to-r from-[#008D80] to-[#45BF55] p-[2px]">
           <Button
             onClick={handleClick}
-            disabled={isLoading}
+            disabled={isDisabled}
             className="w-full bg-[#0d0d0d] rounded-sm hover:bg-[#262626] hover:brightness-105 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
           >
             <span className="flex items-center gap-2 bg-gradient-to-r from-[#008D80] to-[#45BF55] bg-clip-text text-transparent font-nunito font-bold text-sm">
@@ -66,7 +69,7 @@ export function HeaderButton({
         <div className="rounded-sm h-10 bg-gradient-to-r from-[#F22742] to-[#FF576D] p-[2px]">
           <Button
             onClick={handleClick}
-            disabled={isLoading}
+            disabled={isDisabled}
             className="w-full bg-[#262626] rounded-sm hover:bg-[#262626] hover:brightness-105 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
           >
             <span className="flex items-center gap-2 bg-gradient-to-r from-[#F22742] to-[#FF576D] bg-clip-text text-transparent font-nunito font-bold text-sm">
@@ -80,7 +83,7 @@ export function HeaderButton({
       {mode === "maps" && (
         <Button
           onClick={handleClick}
-          disabled={isLoading}
+          disabled={isDisabled}
           className="text-black h-10 bg-white rounded-sm font-nunito font-bold text-sm cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {isLoading ? (

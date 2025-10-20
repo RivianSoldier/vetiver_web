@@ -54,6 +54,9 @@ export default function MapComponent({
     if (markersParam) {
       const markerIds = markersParam.split(",");
       setSelectedMarkers(new Set(markerIds));
+    } else {
+      // Clear markers if no markers param in URL
+      setSelectedMarkers(new Set());
     }
   }, [searchParams]);
 
