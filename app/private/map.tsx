@@ -175,6 +175,7 @@ export default function MapComponent({
           mapId={process.env.NEXT_PUBLIC_DARK_MODE_MAP_ID}
           disableDefaultUI={true}
           zoomControl={true}
+          gestureHandling="greedy"
         >
           <AdvancedMarker position={position}>
             <div className="p-1 bg-[#45bf5547] rounded-full">

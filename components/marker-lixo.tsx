@@ -194,7 +194,7 @@ export const MarkerLixo = memo(function MarkerLixo({
       console.log(`Distance to marker: ${distance * 1000}m`);
 
       // Check if user is within acceptable radius (50 meters = 0.05 km)
-      const MAX_DISTANCE_KM = 0.05; // 50 meters
+      const MAX_DISTANCE_KM = 0.1; // 50 meters
 
       if (distance > MAX_DISTANCE_KM) {
         toast.dismiss("location-check");
@@ -256,6 +256,134 @@ export const MarkerLixo = memo(function MarkerLixo({
         });
       } else {
         toast.error("Erro ao confirmar coleta", {
+          description:
+            error instanceof Error
+              ? error.message
+              : "Ocorreu um erro inesperado.",
+        });
+      }
+    }
+  };
+
+  const handleNotFound = async () => {
+    try {
+      // Check authentication first
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        toast.error("Autenticação necessária", {
+          description:
+            "Você precisa estar autenticado para marcar como não encontrado.",
+        });
+        return;
+      }
+
+      // Get user's current location
+      const getCurrentPosition = (): Promise<GeolocationPosition> => {
+        return new Promise((resolve, reject) => {
+          if (!navigator.geolocation) {
+            reject(new Error("Geolocalização não suportada"));
+          }
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0,
+          });
+        });
+      };
+
+      toast.loading("Verificando sua localização...", { id: "location-check" });
+
+      let userPosition;
+      try {
+        userPosition = await getCurrentPosition();
+      } catch (geoError) {
+        toast.dismiss("location-check");
+        toast.error("Erro ao obter localização", {
+          description:
+            "Permita o acesso à sua localização para marcar como não encontrado.",
+        });
+        return;
+      }
+
+      const userLat = userPosition.coords.latitude;
+      const userLon = userPosition.coords.longitude;
+
+      // Calculate distance between user and marker
+      const distance = calculateDistance(
+        userLat,
+        userLon,
+        position.lat,
+        position.lng
+      );
+
+      console.log(`Distance to marker: ${distance * 1000}m`);
+
+      // Check if user is within acceptable radius (50 meters = 0.05 km)
+      const MAX_DISTANCE_KM = 0.1; // 50 meters
+
+      if (distance > MAX_DISTANCE_KM) {
+        toast.dismiss("location-check");
+        toast.error("Você não está no local", {
+          description:
+            "Aproxime-se do ponto para confirmar que o lixo não foi encontrado.",
+        });
+        return;
+      }
+
+      toast.dismiss("location-check");
+      toast.loading("Marcando como não encontrado...", { id: "not-found" });
+
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      const url = `${backendUrl}/detections/${id}/not_found`;
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          collector_user_id: user.id,
+        }),
+        mode: "cors",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.detail || `Erro ${response.status}: ${response.statusText}`
+        );
+      }
+
+      const result = await response.json();
+      console.log("Not found result:", result);
+
+      toast.dismiss("not-found");
+      toast.success("Marcado como não encontrado!", {
+        description: "O ponto foi registrado como não encontrado.",
+      });
+
+      // Refresh the page to update the markers
+      setTimeout(() => {
+        router.refresh();
+      }, 1000);
+    } catch (error) {
+      console.error("Error marking as not found:", error);
+      toast.dismiss("not-found");
+
+      if (
+        error instanceof TypeError &&
+        error.message.includes("Failed to fetch")
+      ) {
+        toast.error("Erro de conexão", {
+          description:
+            "Não foi possível conectar ao servidor. Tente novamente.",
+        });
+      } else {
+        toast.error("Erro ao marcar como não encontrado", {
           description:
             error instanceof Error
               ? error.message
@@ -367,7 +495,11 @@ export const MarkerLixo = memo(function MarkerLixo({
                       text="Confirmar coleta"
                       onClick={handleConfirmCollection}
                     />
-                    <HeaderButton mode="outlined-red" text="Não encontrado" />
+                    <HeaderButton
+                      mode="outlined-red"
+                      text="Não encontrado"
+                      onClick={handleNotFound}
+                    />
                   </div>
                 </>
               )}
