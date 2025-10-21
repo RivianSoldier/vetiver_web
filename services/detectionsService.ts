@@ -12,6 +12,7 @@ export interface Detection {
   foto: string;
   classes: ClassCount[];
   detection_points?: Record<string, any>;
+  date?: string;
 }
 
 export interface DetectionsResponse {

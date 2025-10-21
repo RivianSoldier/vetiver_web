@@ -198,6 +198,7 @@ export default function MapComponent({
               isSelected={selectedMarkers.has(item.id)}
               onSelectionChange={handleMarkerSelection}
               detectionPoints={item.detection_points}
+              date={item.date}
             />
           ))}
 

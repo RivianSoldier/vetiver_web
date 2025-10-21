@@ -52,6 +52,7 @@ interface MarkerLixoProps {
   isSelected?: boolean;
   onSelectionChange?: (id: string, selected: boolean) => void;
   detectionPoints?: DetectionPointsType;
+  date?: string;
 }
 
 export const MarkerLixo = memo(function MarkerLixo({
@@ -65,6 +66,7 @@ export const MarkerLixo = memo(function MarkerLixo({
   isSelected = false,
   onSelectionChange,
   detectionPoints,
+  date,
 }: MarkerLixoProps) {
   const [showHoverCard, setShowHoverCard] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -73,6 +75,24 @@ export const MarkerLixo = memo(function MarkerLixo({
   const router = useRouter();
 
   const imageSrc = foto || "/foto_example.png";
+
+  // Format date for display
+  const formatDate = (dateString?: string): string => {
+    if (!dateString) return "Data não disponível";
+
+    try {
+      const date = new Date(dateString);
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = String(date.getFullYear()).slice(-2);
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+
+      return `${day}/${month}/${year} - ${hours}:${minutes}`;
+    } catch (error) {
+      return "Data inválida";
+    }
+  };
 
   const fetchAddress = async (lat: number, lng: number) => {
     try {
@@ -208,9 +228,9 @@ export const MarkerLixo = memo(function MarkerLixo({
       toast.dismiss("location-check");
       toast.loading("Confirmando coleta...", { id: "confirm-collection" });
 
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-      const url = `${backendUrl}/detections/${id}/collect`;
+      // Use Next.js API route proxy to avoid mixed content issues in production
+      const url = `/api/detections/${id}/collect`;
+      console.log("Collect URL:", url);
 
       const response = await fetch(url, {
         method: "POST",
@@ -220,13 +240,20 @@ export const MarkerLixo = memo(function MarkerLixo({
         body: JSON.stringify({
           collector_user_id: user.id,
         }),
-        mode: "cors",
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error("Collection API error:", {
+          status: response.status,
+          statusText: response.statusText,
+          errorData,
+          url,
+        });
         throw new Error(
-          errorData.detail || `Erro ${response.status}: ${response.statusText}`
+          errorData.detail ||
+            errorData.error ||
+            `Erro ${response.status}: ${response.statusText}`
         );
       }
 
@@ -252,7 +279,7 @@ export const MarkerLixo = memo(function MarkerLixo({
       ) {
         toast.error("Erro de conexão", {
           description:
-            "Não foi possível conectar ao servidor. Tente novamente.",
+            "Não foi possível conectar ao servidor. Verifique sua conexão.",
         });
       } else {
         toast.error("Erro ao confirmar coleta", {
@@ -337,8 +364,9 @@ export const MarkerLixo = memo(function MarkerLixo({
       toast.dismiss("location-check");
       toast.loading("Marcando como não encontrado...", { id: "not-found" });
 
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-      const url = `${backendUrl}/detections/${id}/not_found`;
+      // Use Next.js API route proxy to avoid mixed content issues in production
+      const url = `/api/detections/${id}/not-found`;
+      console.log("Not found URL:", url);
 
       const response = await fetch(url, {
         method: "POST",
@@ -348,13 +376,20 @@ export const MarkerLixo = memo(function MarkerLixo({
         body: JSON.stringify({
           collector_user_id: user.id,
         }),
-        mode: "cors",
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error("Not found API error:", {
+          status: response.status,
+          statusText: response.statusText,
+          errorData,
+          url,
+        });
         throw new Error(
-          errorData.detail || `Erro ${response.status}: ${response.statusText}`
+          errorData.detail ||
+            errorData.error ||
+            `Erro ${response.status}: ${response.statusText}`
         );
       }
 
@@ -380,7 +415,7 @@ export const MarkerLixo = memo(function MarkerLixo({
       ) {
         toast.error("Erro de conexão", {
           description:
-            "Não foi possível conectar ao servidor. Tente novamente.",
+            "Não foi possível conectar ao servidor. Verifique sua conexão.",
         });
       } else {
         toast.error("Erro ao marcar como não encontrado", {
@@ -484,7 +519,7 @@ export const MarkerLixo = memo(function MarkerLixo({
               <div className="flex flex-col w-full">
                 <p className="text-sm text-white font-nunito">Data</p>
                 <p className="text-sm text-[#a6a6a6] font-nunito">
-                  10/03/25 - 14:30
+                  {formatDate(date)}
                 </p>
               </div>
               {planejar && (
