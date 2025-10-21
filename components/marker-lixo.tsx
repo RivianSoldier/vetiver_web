@@ -194,7 +194,7 @@ export const MarkerLixo = memo(function MarkerLixo({
       console.log(`Distance to marker: ${distance * 1000}m`);
 
       // Check if user is within acceptable radius (50 meters = 0.05 km)
-      const MAX_DISTANCE_KM = 0.1; // 50 meters
+      const MAX_DISTANCE_KM = 5; // 50 meters
 
       if (distance > MAX_DISTANCE_KM) {
         toast.dismiss("location-check");
@@ -323,7 +323,7 @@ export const MarkerLixo = memo(function MarkerLixo({
       console.log(`Distance to marker: ${distance * 1000}m`);
 
       // Check if user is within acceptable radius (50 meters = 0.05 km)
-      const MAX_DISTANCE_KM = 0.1; // 50 meters
+      const MAX_DISTANCE_KM = 5; // 5 km
 
       if (distance > MAX_DISTANCE_KM) {
         toast.dismiss("location-check");

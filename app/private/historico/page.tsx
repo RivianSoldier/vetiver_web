@@ -11,128 +11,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-
-const mockData = [
-  {
-    id: 1,
-    foto: "/foto_example.png",
-    classes: [
-      { nome: "Papelão", quantidade: 2 },
-      { nome: "Plástico", quantidade: 1 },
-    ],
-    lat: -23.648441,
-    long: -46.573043,
-    date: new Date("2025-08-15T14:30:00"),
-    status: "Coletado",
-    dataColetado: new Date("2025-08-15T16:45:00"),
-  },
-  {
-    id: 2,
-    foto: "/foto_example.png",
-    classes: [{ nome: "Papelão", quantidade: 3 }],
-    lat: -23.647336,
-    long: -46.575399,
-    date: new Date("2025-08-20T09:15:00"),
-    status: "Coletado",
-    dataColetado: new Date("2025-08-20T11:30:00"),
-  },
-  {
-    id: 3,
-    foto: "/foto_example.png",
-    classes: [
-      { nome: "Papelão", quantidade: 1 },
-      { nome: "Vidro", quantidade: 2 },
-    ],
-    lat: -23.649123,
-    long: -46.572187,
-    date: new Date("2025-08-25T13:20:00"),
-    status: "NEncontrado",
-    dataColetado: null,
-  },
-  {
-    id: 4,
-    foto: "/foto_example.png",
-    classes: [{ nome: "Plástico", quantidade: 3 }],
-    lat: -23.649123,
-    long: -46.572187,
-    date: new Date("2025-08-28T16:10:00"),
-    status: "Coletado",
-    dataColetado: new Date("2025-08-29T08:15:00"),
-  },
-  {
-    id: 5,
-    foto: "/foto_example.png",
-    classes: [
-      { nome: "Papelão", quantidade: 4 },
-      { nome: "Plástico", quantidade: 1 },
-    ],
-    lat: -23.646892,
-    long: -46.576543,
-    date: new Date("2025-09-01T10:45:00"),
-    status: "NEncontrado",
-    dataColetado: null,
-  },
-  {
-    id: 6,
-    foto: "/foto_example.png",
-    classes: [
-      { nome: "Papelão", quantidade: 2 },
-      { nome: "Plástico", quantidade: 1 },
-    ],
-    lat: -23.648441,
-    long: -46.573043,
-    date: new Date("2025-08-15T14:30:00"),
-    status: "Coletado",
-    dataColetado: new Date("2025-08-15T16:45:00"),
-  },
-  {
-    id: 7,
-    foto: "/foto_example.png",
-    classes: [{ nome: "Papelão", quantidade: 3 }],
-    lat: -23.647336,
-    long: -46.575399,
-    date: new Date("2025-08-20T09:15:00"),
-    status: "Coletado",
-    dataColetado: new Date("2025-08-20T11:30:00"),
-  },
-  {
-    id: 8,
-    foto: "/foto_example.png",
-    classes: [
-      { nome: "Papelão", quantidade: 1 },
-      { nome: "Vidro", quantidade: 2 },
-    ],
-    lat: -23.649123,
-    long: -46.572187,
-    date: new Date("2025-08-25T13:20:00"),
-    status: "NEncontrado",
-    dataColetado: null,
-  },
-  {
-    id: 9,
-    foto: "/foto_example.png",
-    classes: [{ nome: "Plástico", quantidade: 3 }],
-    lat: -23.650789,
-    long: -46.574256,
-    date: new Date("2025-08-28T16:10:00"),
-    status: "Coletado",
-    dataColetado: new Date("2025-08-29T08:15:00"),
-  },
-  {
-    id: 10,
-    foto: "/foto_example.png",
-    classes: [
-      { nome: "Papelão", quantidade: 4 },
-      { nome: "Plástico", quantidade: 1 },
-      { nome: "Vidro", quantidade: 2 },
-    ],
-    lat: -23.646892,
-    long: -46.576543,
-    date: new Date("2025-09-01T10:45:00"),
-    status: "NEncontrado",
-    dataColetado: null,
-  },
-];
+import { collectorService } from "@/services/collectorService";
 
 const ALL_CLASSES = [
   { value: "papelao", label: "Papelão" },
@@ -162,12 +41,17 @@ export default async function HistoricoPage({
     redirect("/login");
   }
 
+  // Fetch collector activity data
+  const activityData = await collectorService.getCollectorActivity(
+    data.user.id
+  );
+
   const currentPage = Math.max(1, parseInt(params.page as string) || 1);
-  const totalItems = mockData.length;
+  const totalItems = activityData.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentPageData = mockData.slice(startIndex, endIndex);
+  const currentPageData = activityData.slice(startIndex, endIndex);
 
   if (currentPage > totalPages && totalPages > 0) {
     redirect(`/private/historico?page=${totalPages}`);
@@ -187,10 +71,12 @@ export default async function HistoricoPage({
               foto={item.foto}
               classes={item.classes}
               lat={item.lat}
-              long={item.long}
-              data={item.date}
+              long={item.lng}
+              data={new Date(item.date)}
               status={item.status}
-              dataColetado={item.dataColetado}
+              dataColetado={
+                item.dataColetado ? new Date(item.dataColetado) : null
+              }
             />
           ))}
         </div>
