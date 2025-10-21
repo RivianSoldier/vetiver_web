@@ -4,9 +4,9 @@ import { Button } from "./ui/button";
 export function LandingPageHeader() {
   return (
     <div className="flex flex-row items-center justify-between min-h-16 md:min-h-24 bg-[#0d0d0d] border-b-[1px] border-[#404040] w-full px-3 md:px-6">
-      <div className="flex flex-row items-center">
+      <div className="flex flex-row items-center gap-4">
         <div>
-          <Image src="/logo_lp.svg" alt="Logo" width={68} height={68} />
+          <Image src="/logo_lp.svg" alt="Logo" width={48} height={48} />
         </div>
         <h1 className="text-white text-md sm:text-lg md:text-2xl font-bold font-poppins">
           Vetiver
