@@ -28,7 +28,12 @@ export function HistoryCard({
     return async () => {
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${long}&accept-language=pt-BR`
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${long}&accept-language=pt-BR`,
+          {
+            headers: {
+              "User-Agent": "VetiverApp/1.0",
+            },
+          }
         );
         const data = await response.json();
 
@@ -70,6 +75,9 @@ export function HistoryCard({
   }, [lat, long]);
 
   useEffect(() => {
+    // Only fetch on client side
+    if (typeof window === "undefined") return;
+
     let isMounted = true;
 
     const getAddress = async () => {
@@ -175,7 +183,12 @@ export function HistoryCard({
           <div className="flex items-center gap-1">
             {dataColetado ? (
               <>
-                <MoveRight size={16} className="text-[#008D80]" />
+                <MoveRight
+                  size={16}
+                  className={
+                    status === "Coletado" ? "text-[#008D80]" : "text-[#FF576D]"
+                  }
+                />
                 <span
                   className={`text-sm ${
                     status === "Coletado"
