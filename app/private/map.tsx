@@ -42,6 +42,7 @@ export default function MapComponent({
   const defaultPosition = { lat: -23.648441, lng: -46.573043 };
   const [position, setPosition] = useState(defaultPosition);
   const [mapCenter, setMapCenter] = useState(defaultPosition);
+  const [mapKey, setMapKey] = useState(0);
   const [selectedMarkers, setSelectedMarkers] = useState<Set<string>>(
     new Set()
   );
@@ -129,6 +130,7 @@ export default function MapComponent({
           };
           setPosition(newPosition);
           setMapCenter(newPosition);
+          setMapKey(prev => prev + 1);
         },
         (error) => {
           console.warn("Geolocation error:", error);
@@ -176,8 +178,9 @@ export default function MapComponent({
         )}
 
         <Map
+          key={mapKey}
           defaultZoom={15}
-          center={mapCenter}
+          defaultCenter={mapCenter}
           mapId={process.env.NEXT_PUBLIC_DARK_MODE_MAP_ID}
           disableDefaultUI={true}
           zoomControl={true}
