@@ -89,7 +89,7 @@ export const MarkerLixo = memo(function MarkerLixo({
       const minutes = String(date.getMinutes()).padStart(2, "0");
 
       return `${day}/${month}/${year} - ${hours}:${minutes}`;
-    } catch (error) {
+    } catch {
       return "Data inválida";
     }
   };
@@ -191,7 +191,7 @@ export const MarkerLixo = memo(function MarkerLixo({
       let userPosition;
       try {
         userPosition = await getCurrentPosition();
-      } catch (geoError) {
+      } catch {
         toast.dismiss("location-check");
         toast.error("Erro ao obter localização", {
           description:
@@ -327,7 +327,7 @@ export const MarkerLixo = memo(function MarkerLixo({
       let userPosition;
       try {
         userPosition = await getCurrentPosition();
-      } catch (geoError) {
+      } catch {
         toast.dismiss("location-check");
         toast.error("Erro ao obter localização", {
           description:

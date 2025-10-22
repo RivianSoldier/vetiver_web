@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MarkerLixo } from "@/components/marker-lixo";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useRoutes } from "@/hooks/useRoutes";
 import { RoutePolyline } from "../../components/route-polyline";
 import { RouteInfo } from "@/components/route-info";
@@ -45,7 +45,6 @@ export default function MapComponent({
     new Set()
   );
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { routeData, isCalculating, error, calculateRoute, clearRoute } =
     useRoutes();
 
