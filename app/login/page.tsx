@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useState, useTransition, useEffect, useRef } from "react";
+import { useState, useTransition, useEffect, useRef, Suspense } from "react";
 import Image from "next/image";
 import { Mail, Lock, Loader2Icon, ChevronLeft } from "lucide-react";
 import Link from "next/link";
@@ -165,10 +165,8 @@ function Header({ text }: HeaderProps) {
   );
 }
 
-export default function LoginPage() {
-  const [error, setError] = useState<string | null>(null);
-  const [isLoginPending, startLoginTransition] = useTransition();
-  const [isSignupPending, startSignupTransition] = useTransition();
+// Componente separado para lidar com os toasts baseados em searchParams
+function ToastHandler() {
   const searchParams = useSearchParams();
   const hasShownToast = useRef(false);
 
@@ -200,6 +198,14 @@ export default function LoginPage() {
       window.history.replaceState({}, "", "/login");
     }
   }, [searchParams]);
+
+  return null;
+}
+
+function LoginContent() {
+  const [error, setError] = useState<string | null>(null);
+  const [isLoginPending, startLoginTransition] = useTransition();
+  const [isSignupPending, startSignupTransition] = useTransition();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -331,5 +337,16 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <>
+      <Suspense fallback={null}>
+        <ToastHandler />
+      </Suspense>
+      <LoginContent />
+    </>
   );
 }
