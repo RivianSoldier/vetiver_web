@@ -65,22 +65,34 @@ export default async function HistoricoPage({
       />
       <div className="bg-[#0d0d0d] flex flex-col flex-1">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6 overflow-y-auto w-full max-w-7xl mx-auto auto-rows-max justify-items-center">
-          {currentPageData.map((item) => (
-            <HistoryCard
-              key={item.id}
-              foto={item.foto}
-              classes={item.classes}
-              lat={item.lat}
-              long={item.lng}
-              data={new Date(item.date)}
-              status={item.status}
-              dataColetado={
-                item.dataColetado ? new Date(item.dataColetado) : null
-              }
-            />
-          ))}
+          {currentPageData.length === 0 ? (
+            <div className="col-span-full flex flex-col items-center justify-center py-20">
+              <p className="text-white text-xl sm:text-2xl font-poppins text-center">
+                Nenhum lixo foi coletado ainda
+              </p>
+              <p className="text-gray-400 text-sm sm:text-base font-nunito text-center mt-2">
+                Comece a coletar resíduos para ver seu histórico aqui
+              </p>
+            </div>
+          ) : (
+            currentPageData.map((item) => (
+              <HistoryCard
+                key={item.id}
+                foto={item.foto}
+                classes={item.classes}
+                lat={item.lat}
+                long={item.lng}
+                data={new Date(item.date)}
+                status={item.status}
+                dataColetado={
+                  item.dataColetado ? new Date(item.dataColetado) : null
+                }
+              />
+            ))
+          )}
         </div>
-        <div className="mt-16">
+        {totalItems > 0 && (
+          <div className="mt-16">
           <Pagination>
             <PaginationContent>
               {currentPage > 1 && (
@@ -167,6 +179,7 @@ export default async function HistoricoPage({
             </PaginationContent>
           </Pagination>
         </div>
+        )}
       </div>
     </div>
   );
