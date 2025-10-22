@@ -1,8 +1,12 @@
+"use client";
+
 import { resetPassword } from "../reset-password-actions";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, Mail } from "lucide-react";
+import { ChevronLeft, Mail, Loader2Icon } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
 
 interface HeaderProps {
   text: string;
@@ -16,11 +20,37 @@ function Header({ text }: HeaderProps) {
   );
 }
 
-export default function ForgotPasswordPage({
-  searchParams,
-}: {
-  searchParams: { error?: string; message?: string };
-}) {
+export default function ForgotPasswordPage() {
+  const [isPending, startTransition] = useTransition();
+  const [email, setEmail] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (!email) {
+      toast.error("Email obrigatório", {
+        description: "Por favor, digite seu email.",
+      });
+      return;
+    }
+
+    const toastId = "reset-password";
+    
+    startTransition(async () => {
+      toast.loading("Enviando email...", { id: toastId });
+      
+      const formData = new FormData();
+      formData.append("email", email);
+      
+      try {
+        await resetPassword(formData);
+      } finally {
+        // Garante que o toast será removido mesmo se o redirect falhar
+        toast.dismiss(toastId);
+      }
+    });
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <div className="absolute top-0 flex flex-col w-full h-[37%] bg-gradient-to-b from-[#45BF55] to-[#008D80] justify-start items-center">
@@ -57,7 +87,7 @@ export default function ForgotPasswordPage({
           </div>
 
           <form
-            action={resetPassword}
+            onSubmit={handleSubmit}
             className="space-y-6 w-full relative z-10 flex flex-col items-center justify-center"
           >
             <div className="flex flex-row justify-center items-center gap-2 sm:gap-3 w-full max-w-lg">
@@ -67,28 +97,20 @@ export default function ForgotPasswordPage({
                 name="email"
                 type="email"
                 placeholder="Digite seu email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isPending}
                 required
               />
             </div>
 
-            {searchParams?.error && (
-              <div className="text-[#F22742] text-sm text-center sm:text-base w-full max-w-xl">
-                {searchParams.error}
-              </div>
-            )}
-
-            {searchParams?.message && (
-              <div className="text-[#45BF55] text-sm text-center sm:text-base w-full max-w-xl">
-                {searchParams.message}
-              </div>
-            )}
-
             <div className="flex mt-6 sm:mt-8 md:mt-10 gap-4 justify-center">
               <button
                 type="submit"
-                className="h-14 w-48 sm:w-52 md:w-56 rounded-full flex items-center justify-center bg-gradient-to-r from-[#45BF55] to-[#008D80] text-black font-poppins font-bold text-md cursor-pointer transition-all duration-300 ease-in-out hover:scale-102 hover:brightness-110"
+                disabled={isPending}
+                className="h-14 w-48 sm:w-52 md:w-56 rounded-full flex items-center justify-center bg-gradient-to-r from-[#45BF55] to-[#008D80] text-black font-poppins font-bold text-md cursor-pointer transition-all duration-300 ease-in-out hover:scale-102 hover:brightness-110 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                ENVIAR EMAIL
+                {isPending ? <Loader2Icon className="animate-spin" /> : "ENVIAR EMAIL"}
               </button>
             </div>
 

@@ -13,11 +13,11 @@ import { Spinner } from "@/components/ui/spinner";
 
 const distancias = [
   { value: "all", label: "Todas as distâncias" },
-  { value: "0-5", label: "0-5 km" },
-  { value: "5-10", label: "5-10 km" },
-  { value: "10-20", label: "10-20 km" },
-  { value: "20-50", label: "20-50 km" },
-  { value: "50+", label: "50+ km" },
+  { value: "5", label: "Até 5 km" },
+  { value: "10", label: "Até 10 km" },
+  { value: "20", label: "Até 20 km" },
+  { value: "50", label: "Até 50 km" },
+  { value: "100", label: "Até 100 km" },
 ];
 
 interface SelectDistanceHeaderProps {

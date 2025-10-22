@@ -139,11 +139,9 @@ export default function MapComponent({
       detection.lng
     );
 
-    const [min, max] = distanceFilter.split("-");
-    if (max === "+") {
-      return distance >= parseInt(min);
-    }
-    return distance >= parseInt(min) && distance <= parseInt(max);
+    // Filter from 0 to the selected distance
+    const maxDistance = parseInt(distanceFilter);
+    return distance <= maxDistance;
   });
 
   // When showing route (planejar=true/calculating), only show selected markers

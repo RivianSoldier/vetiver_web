@@ -19,5 +19,5 @@ export async function resetPassword(formData: FormData) {
     redirect(`/login?error=${encodeURIComponent(error.message)}`);
   }
 
-  redirect("/login?message=Check your email for password reset instructions");
+  redirect("/login?success=true");
 }
