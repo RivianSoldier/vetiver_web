@@ -89,7 +89,7 @@ export const MarkerLixo = memo(function MarkerLixo({
       const minutes = String(date.getMinutes()).padStart(2, "0");
 
       return `${day}/${month}/${year} - ${hours}:${minutes}`;
-    } catch (error) {
+    } catch {
       return "Data inválida";
     }
   };
@@ -191,7 +191,7 @@ export const MarkerLixo = memo(function MarkerLixo({
       let userPosition;
       try {
         userPosition = await getCurrentPosition();
-      } catch (geoError) {
+      } catch {
         toast.dismiss("location-check");
         toast.error("Erro ao obter localização", {
           description:
@@ -213,8 +213,8 @@ export const MarkerLixo = memo(function MarkerLixo({
 
       console.log(`Distance to marker: ${distance * 1000}m`);
 
-      // Check if user is within acceptable radius (50 meters = 0.05 km)
-      const MAX_DISTANCE_KM = 5; // 50 meters
+      // Check if user is within acceptable radius (100 meters = 0.1 km)
+      const MAX_DISTANCE_KM = 0.1; // 100 meters
 
       if (distance > MAX_DISTANCE_KM) {
         toast.dismiss("location-check");
@@ -327,7 +327,7 @@ export const MarkerLixo = memo(function MarkerLixo({
       let userPosition;
       try {
         userPosition = await getCurrentPosition();
-      } catch (geoError) {
+      } catch {
         toast.dismiss("location-check");
         toast.error("Erro ao obter localização", {
           description:
@@ -349,8 +349,8 @@ export const MarkerLixo = memo(function MarkerLixo({
 
       console.log(`Distance to marker: ${distance * 1000}m`);
 
-      // Check if user is within acceptable radius (50 meters = 0.05 km)
-      const MAX_DISTANCE_KM = 5; // 5 km
+      // Check if user is within acceptable radius (100 meters = 0.1 km)
+      const MAX_DISTANCE_KM = 0.1; // 100 meters
 
       if (distance > MAX_DISTANCE_KM) {
         toast.dismiss("location-check");
@@ -616,9 +616,9 @@ export const MarkerLixo = memo(function MarkerLixo({
                           (subClass: SubClass) => {
                             const colorMap: { [key: string]: string } = {
                               papel: "#4A90E2",
-                              plastico: "#F5A623",
+                              plastico: "#D0021B",
                               vidro: "#7ED321",
-                              metal: "#D0021B",
+                              metal: "#f5e023ff",
                             };
 
                             allContours.push({
@@ -633,7 +633,7 @@ export const MarkerLixo = memo(function MarkerLixo({
                         allContours.push({
                           contour: lixoDetection.lixo_contour,
                           className: "lixo",
-                          color: "#32CD32",
+                          color: "#8a13cfff",
                         });
                       }
                     });
@@ -649,7 +649,7 @@ export const MarkerLixo = memo(function MarkerLixo({
                           className: detection.class_name || "lixo",
                           color:
                             detection.class_name === "lixo"
-                              ? "#32CD32"
+                              ? "#8a13cfff"
                               : "#0078FF",
                         });
                       }

@@ -13,11 +13,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useRef, Suspense } from "react";
 import Image from "next/image";
 import { Mail, Lock, Loader2Icon, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import InputPassword from "@/components/ui/input-password";
+import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -163,7 +165,44 @@ function Header({ text }: HeaderProps) {
   );
 }
 
-export default function LoginPage() {
+// Componente separado para lidar com os toasts baseados em searchParams
+function ToastHandler() {
+  const searchParams = useSearchParams();
+  const hasShownToast = useRef(false);
+
+  useEffect(() => {
+    // Evita mostrar o toast múltiplas vezes
+    if (hasShownToast.current) return;
+
+    // Remove qualquer toast de loading que possa estar ativo
+    toast.dismiss("reset-password");
+
+    const success = searchParams.get("success");
+    const errorParam = searchParams.get("error");
+
+    if (success) {
+      hasShownToast.current = true;
+      toast.success("Email enviado!", {
+        description: "Verifique sua caixa de entrada para redefinir sua senha.",
+      });
+      // Limpa o parâmetro da URL
+      window.history.replaceState({}, "", "/login");
+    }
+
+    if (errorParam) {
+      hasShownToast.current = true;
+      toast.error("Erro ao enviar email", {
+        description: decodeURIComponent(errorParam),
+      });
+      // Limpa o parâmetro da URL
+      window.history.replaceState({}, "", "/login");
+    }
+  }, [searchParams]);
+
+  return null;
+}
+
+function LoginContent() {
   const [error, setError] = useState<string | null>(null);
   const [isLoginPending, startLoginTransition] = useTransition();
   const [isSignupPending, startSignupTransition] = useTransition();
@@ -298,5 +337,16 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <>
+      <Suspense fallback={null}>
+        <ToastHandler />
+      </Suspense>
+      <LoginContent />
+    </>
   );
 }
