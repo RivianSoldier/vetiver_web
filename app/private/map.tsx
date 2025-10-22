@@ -41,6 +41,7 @@ export default function MapComponent({
 }) {
   const defaultPosition = { lat: -23.648441, lng: -46.573043 };
   const [position, setPosition] = useState(defaultPosition);
+  const [mapCenter, setMapCenter] = useState(defaultPosition);
   const [selectedMarkers, setSelectedMarkers] = useState<Set<string>>(
     new Set()
   );
@@ -99,6 +100,12 @@ export default function MapComponent({
 
       if (selectedWaypoints.length > 0) {
         calculateRoute(position, selectedWaypoints);
+      } else if (selectedMarkers.size > 0) {
+        // Todos os pontos foram coletados/não encontrados (não existem mais)
+        clearRoute();
+        setSelectedMarkers(new Set());
+        // Limpa os markers da URL
+        window.history.replaceState(null, "", "/private");
       }
     } else if (!planejar) {
       clearRoute();
@@ -116,10 +123,12 @@ export default function MapComponent({
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (location) => {
-          setPosition({
+          const newPosition = {
             lat: location.coords.latitude,
             lng: location.coords.longitude,
-          });
+          };
+          setPosition(newPosition);
+          setMapCenter(newPosition);
         },
         (error) => {
           console.warn("Geolocation error:", error);
@@ -168,7 +177,7 @@ export default function MapComponent({
 
         <Map
           defaultZoom={15}
-          defaultCenter={position}
+          center={mapCenter}
           mapId={process.env.NEXT_PUBLIC_DARK_MODE_MAP_ID}
           disableDefaultUI={true}
           zoomControl={true}

@@ -14,6 +14,7 @@ import { Waypoints, MoveRight, Filter, Bot } from "lucide-react";
 import { SelectDistanceHeader } from "./select-distance-header";
 import { SelectClassHeader } from "./select-class-header";
 import { SelectedClasses } from "./selected-classes";
+import { toast } from "sonner";
 import {
   Sheet,
   SheetContent,
@@ -257,26 +258,110 @@ export function FiltersHeader({
   }, [searchParams, router, startFilterTransition]);
 
   const handleAutomaticRoute = useCallback(() => {
-    startCalculatingTransition(() => {
-      // Get all visible filtered marker IDs
-      const visibleMarkerIds = filteredDetections.map((d) => d.id);
-
+    // Get the distance filter
+    const distanceFilter = searchParams.get("distance");
+    
+    // Filter detections by distance if filter is active
+    const detectionsToRoute = filteredDetections;
+    
+    if (distanceFilter && navigator.geolocation) {
+      // Get user's current position
+      navigator.geolocation.getCurrentPosition(
+        (location) => {
+          const userLat = location.coords.latitude;
+          const userLng = location.coords.longitude;
+          
+          // Filter by distance
+          const filtered = filteredDetections.filter((detection) => {
+            const distance = calculateDistance(
+              userLat,
+              userLng,
+              detection.lat,
+              detection.lng
+            );
+            
+            // Check if it's "50+" filter
+            if (distanceFilter === "50+") {
+              return distance >= 50;
+            }
+            
+            // Filter from 0 to the selected distance
+            const maxDistance = parseInt(distanceFilter);
+            return distance <= maxDistance;
+          });
+          
+          const visibleMarkerIds = filtered.map((d) => d.id);
+          
+          if (visibleMarkerIds.length === 0) {
+            toast.error("Nenhum lixo encontrado", {
+              description: "Não existem lixos a serem coletados com os filtros selecionados.",
+            });
+            return;
+          }
+          
+          startCalculatingTransition(() => {
+            // Set markers and calculating state
+            const current = new URLSearchParams(Array.from(searchParams.entries()));
+            current.set("markers", visibleMarkerIds.join(","));
+            current.set("calculating", "true");
+            current.delete("planning");
+            
+            const search = current.toString();
+            const query = search ? `?${search}` : "";
+            router.push(`/private${query}`);
+          });
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          toast.error("Erro ao obter localização", {
+            description: "Permita o acesso à sua localização para automatizar a rota.",
+          });
+        }
+      );
+    } else {
+      // No distance filter, use all filtered detections
+      const visibleMarkerIds = detectionsToRoute.map((d) => d.id);
+      
       if (visibleMarkerIds.length === 0) {
-        console.log("No markers to route");
+        toast.error("Nenhum lixo encontrado", {
+          description: "Não existem lixos a serem coletados com os filtros selecionados.",
+        });
         return;
       }
-
-      // Set markers and calculating state
-      const current = new URLSearchParams(Array.from(searchParams.entries()));
-      current.set("markers", visibleMarkerIds.join(","));
-      current.set("calculating", "true");
-      current.delete("planning");
-
-      const search = current.toString();
-      const query = search ? `?${search}` : "";
-      router.push(`/private${query}`);
-    });
+      
+      startCalculatingTransition(() => {
+        // Set markers and calculating state
+        const current = new URLSearchParams(Array.from(searchParams.entries()));
+        current.set("markers", visibleMarkerIds.join(","));
+        current.set("calculating", "true");
+        current.delete("planning");
+        
+        const search = current.toString();
+        const query = search ? `?${search}` : "";
+        router.push(`/private${query}`);
+      });
+    }
   }, [filteredDetections, searchParams, router, startCalculatingTransition]);
+  
+  // Helper function to calculate distance
+  function calculateDistance(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ): number {
+    const R = 6371;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
 
   // Check if filters are active
   const hasActiveFilters =
