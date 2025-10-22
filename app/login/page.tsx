@@ -180,7 +180,14 @@ function ToastHandler() {
     const success = searchParams.get("success");
     const errorParam = searchParams.get("error");
 
-    if (success) {
+    if (success === "password-updated") {
+      hasShownToast.current = true;
+      toast.success("Senha atualizada!", {
+        description: "Você já pode fazer login com sua nova senha.",
+      });
+      // Limpa o parâmetro da URL
+      window.history.replaceState({}, "", "/login");
+    } else if (success) {
       hasShownToast.current = true;
       toast.success("Email enviado!", {
         description: "Verifique sua caixa de entrada para redefinir sua senha.",

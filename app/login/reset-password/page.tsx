@@ -7,7 +7,6 @@ import { ChevronLeft, Lock } from "lucide-react";
 import InputPassword from "@/components/ui/input-password";
 import { useTransition, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 
 interface HeaderProps {
@@ -28,9 +27,7 @@ function ResetPasswordContent() {
 
   const handleSubmit = async (formData: FormData) => {
     startTransition(async () => {
-      toast.loading("Atualizando senha...");
       await updatePassword(formData);
-      toast.dismiss();
     });
   };
   return (
