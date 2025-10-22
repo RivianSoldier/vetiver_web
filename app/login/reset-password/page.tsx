@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, Lock } from "lucide-react";
 import InputPassword from "@/components/ui/input-password";
-import { useTransition } from "react";
+import { useTransition, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
@@ -22,7 +22,7 @@ function Header({ text }: HeaderProps) {
   );
 }
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
@@ -132,5 +132,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={null}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }
