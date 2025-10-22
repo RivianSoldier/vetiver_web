@@ -1,8 +1,14 @@
+"use client";
+
 import { updatePassword } from "../update-password-actions";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, Lock } from "lucide-react";
 import InputPassword from "@/components/ui/input-password";
+import { useTransition } from "react";
+import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+import { Spinner } from "@/components/ui/spinner";
 
 interface HeaderProps {
   text: string;
@@ -16,11 +22,17 @@ function Header({ text }: HeaderProps) {
   );
 }
 
-export default function ResetPasswordPage({
-  searchParams,
-}: {
-  searchParams: { error?: string; message?: string };
-}) {
+export default function ResetPasswordPage() {
+  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+
+  const handleSubmit = async (formData: FormData) => {
+    startTransition(async () => {
+      toast.loading("Atualizando senha...");
+      await updatePassword(formData);
+      toast.dismiss();
+    });
+  };
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <div className="absolute top-0 flex flex-col w-full h-[37%] bg-gradient-to-b from-[#45BF55] to-[#008D80] justify-start items-center">
@@ -57,7 +69,7 @@ export default function ResetPasswordPage({
           </div>
 
           <form
-            action={updatePassword}
+            action={handleSubmit}
             className="space-y-6 w-full relative z-10 flex flex-col items-center justify-center"
           >
             <div className="flex flex-row justify-center items-center gap-2 sm:gap-3 w-full max-w-lg">
@@ -86,24 +98,25 @@ export default function ResetPasswordPage({
               </div>
             </div>
 
-            {searchParams?.error && (
+            {searchParams.get("error") && (
               <div className="text-[#F22742] text-sm text-center sm:text-base w-full max-w-2xl">
-                {searchParams.error}
+                {searchParams.get("error")}
               </div>
             )}
 
-            {searchParams?.message && (
+            {searchParams.get("message") && (
               <div className="text-[#45BF55] text-sm text-center sm:text-base w-full max-w-2xl">
-                {searchParams.message}
+                {searchParams.get("message")}
               </div>
             )}
 
             <div className="flex mt-6 sm:mt-8 md:mt-10 gap-4 justify-center">
               <button
                 type="submit"
-                className="h-14 w-48 sm:w-52 md:w-56 rounded-full flex items-center justify-center bg-gradient-to-r from-[#45BF55] to-[#008D80] text-black font-poppins font-bold text-md cursor-pointer transition-all duration-300 ease-in-out hover:scale-102 hover:brightness-110"
+                disabled={isPending}
+                className="h-14 w-48 sm:w-52 md:w-56 rounded-full flex items-center justify-center bg-gradient-to-r from-[#45BF55] to-[#008D80] text-black font-poppins font-bold text-md cursor-pointer transition-all duration-300 ease-in-out hover:scale-102 hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                ATUALIZAR SENHA
+                {isPending ? <Spinner /> : "ATUALIZAR SENHA"}
               </button>
             </div>
 
