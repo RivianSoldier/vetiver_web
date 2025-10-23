@@ -1,7 +1,7 @@
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import Image from "next/image";
 import { Checkbox } from "./ui/checkbox";
-import { useState, memo } from "react";
+import { useState, memo, useEffect, useRef } from "react";
 import { Table, TableBody, TableCell, TableRow } from "./ui/table";
 import { HeaderButton } from "./header-button";
 import { createClient } from "@/utils/supabase/client";
@@ -73,8 +73,35 @@ export const MarkerLixo = memo(function MarkerLixo({
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [address, setAddress] = useState<string>("Carregando endereço...");
   const router = useRouter();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const markerRef = useRef<HTMLDivElement>(null);
 
   const imageSrc = foto || "/foto_example.png";
+
+  // Handle clicks outside to close card on mobile
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (
+        showHoverCard &&
+        cardRef.current &&
+        markerRef.current &&
+        !cardRef.current.contains(event.target as Node) &&
+        !markerRef.current.contains(event.target as Node)
+      ) {
+        setShowHoverCard(false);
+      }
+    };
+
+    if (showHoverCard) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [showHoverCard]);
 
   // Format date for display
   const formatDate = (dateString?: string): string => {
@@ -432,9 +459,11 @@ export const MarkerLixo = memo(function MarkerLixo({
     <>
       <AdvancedMarker position={position}>
         <div
+          ref={markerRef}
           className="relative cursor-pointer"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={() => setShowHoverCard(false)}
+          onClick={() => setShowHoverCard(!showHoverCard)}
         >
           <div className="absolute top-[-12px] right-[-4px]">
             <div className="w-6 h-6 bg-[#0d0d0d] rounded-full flex justify-center items-center">
@@ -445,7 +474,10 @@ export const MarkerLixo = memo(function MarkerLixo({
           </div>
           <Image width={40} height={40} src="/marker.svg" alt="Marker Icon" />
           {isCheckbox && (
-            <div className="absolute w-5 h-5 bottom-[-8px] rounded-md right-[-4px] bg-[#0d0d0d] ">
+            <div 
+              className="absolute w-5 h-5 bottom-[-8px] rounded-md right-[-4px] bg-[#0d0d0d]"
+              onClick={(e) => e.stopPropagation()}
+            >
               <Checkbox
                 className="w-5 h-5 cursor-pointer"
                 checked={isSelected}
@@ -459,11 +491,12 @@ export const MarkerLixo = memo(function MarkerLixo({
       {showHoverCard && (
         <AdvancedMarker position={position}>
           <div
+            ref={cardRef}
             className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-in fade-in-50 zoom-in-50 duration-350"
             onMouseEnter={() => setShowHoverCard(true)}
             onMouseLeave={() => setShowHoverCard(false)}
           >
-            <div className="flex flex-col justify-around gap-3 items-center min-w-[340px] bg-[#262626] rounded-md p-4 shadow-md relative cursor-default transition-all duration-200">
+            <div className="flex flex-col justify-around gap-3 items-center w-[90vw] sm:w-[340px] max-w-[340px] bg-[#262626] rounded-md p-4 shadow-md relative cursor-default transition-all duration-200">
               <div className="flex flex-row justify-around items-start w-full gap-5">
                 <div>
                   <h3 className="font-bold text-white text-sm font-nunito mb-2">
