@@ -1,7 +1,7 @@
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import Image from "next/image";
 import { Checkbox } from "./ui/checkbox";
-import { useState, memo, useEffect, useRef } from "react";
+import { useState, memo, useEffect, useRef, useCallback } from "react";
 import { Table, TableBody, TableCell, TableRow } from "./ui/table";
 import { HeaderButton } from "./header-button";
 import { createClient } from "@/utils/supabase/client";
@@ -78,6 +78,46 @@ export const MarkerLixo = memo(function MarkerLixo({
 
   const imageSrc = foto || "/foto_example.png";
 
+  // Format date for display
+  const formatDate = (dateString?: string): string => {
+    if (!dateString) return "Data não disponível";
+
+    try {
+      const date = new Date(dateString);
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = String(date.getFullYear()).slice(-2);
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+
+      return `${day}/${month}/${year} - ${hours}:${minutes}`;
+    } catch {
+      return "Data inválida";
+    }
+  };
+
+  const fetchAddress = useCallback(async (lat: number, lng: number) => {
+    try {
+      const geocoder = new google.maps.Geocoder();
+      const result = await geocoder.geocode({
+        location: { lat, lng },
+      });
+
+      if (result.results && result.results.length > 0) {
+        const formattedAddress = result.results[0].formatted_address;
+        const cleanAddress = formattedAddress
+          .replace(/, Brasil$/, "")
+          .replace(/\d{5}-\d{3},?\s?/, "");
+        setAddress(cleanAddress);
+      } else {
+        setAddress("Endereço não encontrado");
+      }
+    } catch (error) {
+      console.error("Error fetching address:", error);
+      setAddress("Erro ao buscar endereço");
+    }
+  }, []);
+
   // Handle clicks outside to close card on mobile
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
@@ -103,45 +143,12 @@ export const MarkerLixo = memo(function MarkerLixo({
     };
   }, [showHoverCard]);
 
-  // Format date for display
-  const formatDate = (dateString?: string): string => {
-    if (!dateString) return "Data não disponível";
-
-    try {
-      const date = new Date(dateString);
-      const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const year = String(date.getFullYear()).slice(-2);
-      const hours = String(date.getHours()).padStart(2, "0");
-      const minutes = String(date.getMinutes()).padStart(2, "0");
-
-      return `${day}/${month}/${year} - ${hours}:${minutes}`;
-    } catch {
-      return "Data inválida";
+  // Fetch address when card is shown
+  useEffect(() => {
+    if (showHoverCard && address === "Carregando endereço...") {
+      fetchAddress(position.lat, position.lng);
     }
-  };
-
-  const fetchAddress = async (lat: number, lng: number) => {
-    try {
-      const geocoder = new google.maps.Geocoder();
-      const result = await geocoder.geocode({
-        location: { lat, lng },
-      });
-
-      if (result.results && result.results.length > 0) {
-        const formattedAddress = result.results[0].formatted_address;
-        const cleanAddress = formattedAddress
-          .replace(/, Brasil$/, "")
-          .replace(/\d{5}-\d{3},?\s?/, "");
-        setAddress(cleanAddress);
-      } else {
-        setAddress("Endereço não encontrado");
-      }
-    } catch (error) {
-      console.error("Error fetching address:", error);
-      setAddress("Erro ao buscar endereço");
-    }
-  };
+  }, [showHoverCard, address, position.lat, position.lng, fetchAddress]);
 
   const handleMouseEnter = () => {
     setShowHoverCard(true);
