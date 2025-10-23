@@ -435,15 +435,12 @@ export function HistoryFiltersHeader({
   );
 
   return (
-    <div className="flex flex-row sm:flex-row sm:items-center justify-between min-h-28 sm:min-h-24 px-2 sm:px-4 py-3 bg-[#0d0d0d]">
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-row items-start sm:items-center gap-3 mb-0">
-          <div className="flex items-center gap-3">
-            <SidebarTrigger className="text-white w-5 h-5 sm:w-8 sm:h-8" />
-            <div className="w-[2px] h-6 sm:h-10 bg-[#262626]" />
-          </div>
+    <div className="flex flex-row items-center justify-between min-h-24 px-2 sm:px-4 py-3 bg-[#0d0d0d]">
+      <div className="flex flex-row items-center gap-3">
+        <SidebarTrigger className="text-white w-5 h-5 sm:w-8 sm:h-8" />
+        <div className="w-[2px] h-6 sm:h-10 bg-[#262626]" />
 
-          {isMobile ? (
+        {isMobile ? (
             <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
               <SheetTrigger asChild>
                 <button className="flex items-center gap-2 text-white font-nunito text-sm bg-[#262626] px-3 py-2 rounded-md hover:bg-[#333333] transition-colors">
@@ -535,7 +532,6 @@ export function HistoryFiltersHeader({
               </div>
             </div>
           )}
-        </div>
       </div>
 
       <div className="flex flex-col justify-start items-end gap-2 mt-0 sm:gap-3">

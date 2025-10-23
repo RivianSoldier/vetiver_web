@@ -116,7 +116,7 @@ export default async function HistoricoPage({
         activityData={allActivityData}
         filteredActivityData={filteredData}
       />
-      <div className="bg-[#0d0d0d] flex flex-col flex-1 justify-center items-center overflow-y-auto">
+      <div className="bg-[#0d0d0d] flex flex-col flex-1 justify-start md:justify-center items-center overflow-y-auto pt-6 md:pt-0">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
           {currentPageData.length === 0 ? (
             <div className="col-span-full flex flex-col items-center justify-center py-20">
