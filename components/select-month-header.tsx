@@ -12,41 +12,41 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "./ui/spinner";
 
-interface SelectStatusHeaderProps {
-  status: { value: string; label: string }[];
-  onStatusSelect: (value: string) => void;
-  selectedStatus: { value: string; label: string }[];
+interface SelectMonthHeaderProps {
+  months: { value: string; label: string }[];
+  onMonthSelect: (value: string) => void;
+  selectedMonth: { value: string; label: string }[];
   loading?: boolean;
 }
 
-export function SelectStatusHeader({
-  status,
-  onStatusSelect,
-  selectedStatus,
+export function SelectMonthHeader({
+  months,
+  onMonthSelect,
+  selectedMonth,
   loading = false,
-}: SelectStatusHeaderProps) {
+}: SelectMonthHeaderProps) {
   return (
-    <Select onValueChange={onStatusSelect} disabled={loading}>
+    <Select onValueChange={onMonthSelect} disabled={loading}>
       <SelectTrigger className="w-full min-w-[180px] text-sm font-nunito font-bold cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
         {loading ? (
           <Spinner className="text-[#008D80]" />
         ) : (
-          <SelectValue placeholder="Status" />
+          <SelectValue placeholder="Mês" />
         )}
       </SelectTrigger>
       <SelectContent className="bg-[#262626] border-2 border-[#404040]">
         <SelectGroup>
-          <SelectLabel className="text-sm font-nunito">Status</SelectLabel>
-          {status.map((statusItem) => (
+          <SelectLabel className="text-sm font-nunito">Mês</SelectLabel>
+          {months.map((monthItem) => (
             <SelectItem
               className="text-sm font-nunito cursor-pointer"
-              key={statusItem.value}
-              value={statusItem.value}
-              disabled={selectedStatus.some(
-                (selected) => selected.value === statusItem.value
+              key={monthItem.value}
+              value={monthItem.value}
+              disabled={selectedMonth.some(
+                (selected) => selected.value === monthItem.value
               )}
             >
-              {statusItem.label}
+              {monthItem.label}
             </SelectItem>
           ))}
         </SelectGroup>

@@ -12,41 +12,41 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "./ui/spinner";
 
-interface SelectStatusHeaderProps {
-  status: { value: string; label: string }[];
-  onStatusSelect: (value: string) => void;
-  selectedStatus: { value: string; label: string }[];
+interface SelectYearHeaderProps {
+  years: { value: string; label: string }[];
+  onYearSelect: (value: string) => void;
+  selectedYear: { value: string; label: string }[];
   loading?: boolean;
 }
 
-export function SelectStatusHeader({
-  status,
-  onStatusSelect,
-  selectedStatus,
+export function SelectYearHeader({
+  years,
+  onYearSelect,
+  selectedYear,
   loading = false,
-}: SelectStatusHeaderProps) {
+}: SelectYearHeaderProps) {
   return (
-    <Select onValueChange={onStatusSelect} disabled={loading}>
+    <Select onValueChange={onYearSelect} disabled={loading}>
       <SelectTrigger className="w-full min-w-[180px] text-sm font-nunito font-bold cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
         {loading ? (
           <Spinner className="text-[#008D80]" />
         ) : (
-          <SelectValue placeholder="Status" />
+          <SelectValue placeholder="Ano" />
         )}
       </SelectTrigger>
       <SelectContent className="bg-[#262626] border-2 border-[#404040]">
         <SelectGroup>
-          <SelectLabel className="text-sm font-nunito">Status</SelectLabel>
-          {status.map((statusItem) => (
+          <SelectLabel className="text-sm font-nunito">Ano</SelectLabel>
+          {years.map((yearItem) => (
             <SelectItem
               className="text-sm font-nunito cursor-pointer"
-              key={statusItem.value}
-              value={statusItem.value}
-              disabled={selectedStatus.some(
-                (selected) => selected.value === statusItem.value
+              key={yearItem.value}
+              value={yearItem.value}
+              disabled={selectedYear.some(
+                (selected) => selected.value === yearItem.value
               )}
             >
-              {statusItem.label}
+              {yearItem.label}
             </SelectItem>
           ))}
         </SelectGroup>

@@ -27,7 +27,7 @@ export function SelectClassHeader({
 }: SelectClassHeaderProps) {
   return (
     <Select onValueChange={onClassSelect} disabled={loading}>
-      <SelectTrigger className="text-sm font-nunito font-bold cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
+      <SelectTrigger className="w-full min-w-[180px] text-sm font-nunito font-bold cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
         {loading ? (
           <Spinner className="text-[#008D80]" />
         ) : (

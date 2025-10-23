@@ -14,6 +14,7 @@ export interface CollectorActivity {
   date: string;
   status: string;
   dataColetado: string | null;
+  detection_points?: Record<string, unknown>;
 }
 
 class CollectorService {
@@ -53,10 +54,11 @@ class CollectorService {
 
       const data: CollectorActivity[] = await response.json();
 
-      // Format base64 images
+      // Format base64 images and normalize classes to always show all 4
       const formattedData = data.map((activity) => ({
         ...activity,
         foto: this.formatBase64Image(activity.foto),
+        classes: this.normalizeClasses(activity.classes),
       }));
 
       return formattedData;
@@ -84,6 +86,25 @@ class CollectorService {
     }
 
     return `data:image/jpeg;base64,${foto}`;
+  }
+
+  private normalizeClasses(classes: ClassCount[]): ClassCount[] {
+    const allClasses = ["papel", "plastico", "vidro", "metal"];
+    const classMap: { [key: string]: number } = {};
+
+    // Mapeia as classes que vieram da API (normaliza maiúsculas/minúsculas)
+    classes.forEach((classe) => {
+      const nomeLower = classe.nome.toLowerCase().trim();
+      // Normaliza possíveis variações de nome
+      const normalizedName = nomeLower === "plástico" ? "plastico" : nomeLower;
+      classMap[normalizedName] = classe.quantidade;
+    });
+
+    // Retorna sempre as 4 classes, com 0 para as não detectadas
+    return allClasses.map((nome) => ({
+      nome,
+      quantidade: classMap[nome] || 0,
+    }));
   }
 }
 

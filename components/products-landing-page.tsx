@@ -93,8 +93,8 @@ export function LandingPageProducts() {
           <Image
             src="/card4.png"
             alt="Descrição da imagem"
-            width={314}
-            height={366}
+            width={360}
+            height={336}
             className="rounded-md mt-12"
           />
         </div>
@@ -113,10 +113,10 @@ export function LandingPageProducts() {
             </p>
           </div>
           <Image
-            src="/card5.svg"
+            src="/card5.png"
             alt="Descrição da imagem"
-            width={353}
-            height={366}
+            width={360}
+            height={336}
             className="rounded-md mt-12"
           />
         </div>
@@ -136,8 +136,8 @@ export function LandingPageProducts() {
           <Image
             src="/card6.png"
             alt="Descrição da imagem"
-            width={314}
-            height={366}
+            width={360}
+            height={336}
             className="rounded-md mt-12"
           />
         </div>

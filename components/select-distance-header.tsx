@@ -45,7 +45,7 @@ export function SelectDistanceHeader({
       onValueChange={handleValueChange}
       disabled={loading}
     >
-      <SelectTrigger className="w-fit text-sm font-nunito font-bold cursor-pointer flex items-start h-full disabled:opacity-70 disabled:cursor-not-allowed">
+      <SelectTrigger className="w-full min-w-[180px] text-sm font-nunito font-bold cursor-pointer flex items-start h-full disabled:opacity-70 disabled:cursor-not-allowed">
         {loading ? (
           <Spinner className="text-[#008D80]" />
         ) : (
