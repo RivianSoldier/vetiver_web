@@ -16,7 +16,6 @@ import { SelectClassHeader } from "./select-class-header";
 import { SelectMonthHeader } from "./select-month-header";
 import { SelectYearHeader } from "./select-year-header";
 import { SelectedClasses } from "./selected-classes";
-import { SelectedStatus } from "./selected-status";
 import { SelectedMonth } from "./selected-month";
 import { SelectedYear } from "./selected-year";
 import {
@@ -73,13 +72,7 @@ export function HistoryFiltersHeader({
     { value: string; label: string }[]
   >(initialSelectedClasses);
 
-  // Available status options
-  const availableStatus = useMemo(() => {
-    return [
-      { value: "Coletado", label: "Coletado" },
-      { value: "Não encontrado", label: "Não encontrado" },
-    ];
-  }, []);
+  const selectedStatus = searchParams.get("status") || undefined;
 
   // Extract available months and years from dataColetado
   const availableMonths = useMemo(() => {
@@ -135,19 +128,8 @@ export function HistoryFiltersHeader({
       }));
   }, [activityData]);
 
-  const [selectStatusKey, setSelectStatusKey] = useState(Date.now());
   const [selectMonthKey, setSelectMonthKey] = useState(Date.now());
   const [selectYearKey, setSelectYearKey] = useState(Date.now());
-
-  const initialSelectedStatus = useMemo(() => {
-    const statusParam = searchParams.get("status");
-    if (!statusParam) return [];
-    return availableStatus.filter((s) => s.value === statusParam);
-  }, [searchParams, availableStatus]);
-
-  const [selectedStatus, setSelectedStatus] = useState<
-    { value: string; label: string }[]
-  >(initialSelectedStatus);
 
   const initialSelectedMonth = useMemo(() => {
     const monthParam = searchParams.get("month");
@@ -174,10 +156,6 @@ export function HistoryFiltersHeader({
   }, [initialSelectedClasses]);
 
   useEffect(() => {
-    setSelectedStatus(initialSelectedStatus);
-  }, [initialSelectedStatus]);
-
-  useEffect(() => {
     setSelectedMonth(initialSelectedMonth);
   }, [initialSelectedMonth]);
 
@@ -185,45 +163,23 @@ export function HistoryFiltersHeader({
     setSelectedYear(initialSelectedYear);
   }, [initialSelectedYear]);
 
-  const handleAddStatus = useCallback(
-    (statusValue: string) => {
-      if (selectedStatus.length > 0) {
-        return; // Only allow one status at a time
-      }
-      const statusToAdd = availableStatus.find((s) => s.value === statusValue);
-      if (statusToAdd) {
-        const newSelectedStatus = [statusToAdd];
-        setSelectedStatus(newSelectedStatus);
-        setSelectStatusKey(Date.now());
-
-        startFilterTransition(() => {
-          const current = new URLSearchParams(
-            Array.from(searchParams.entries())
-          );
-          current.set("status", statusToAdd.value);
-          current.delete("page"); // Reset to page 1 when filtering
-          const search = current.toString();
-          const query = search ? `?${search}` : "";
-          router.replace(`/private/historico${query}`);
-        });
-      }
+  const handleStatusChange = useCallback(
+    (status: string) => {
+      startFilterTransition(() => {
+        const current = new URLSearchParams(Array.from(searchParams.entries()));
+        if (status) {
+          current.set("status", status);
+        } else {
+          current.delete("status");
+        }
+        current.delete("page"); // Reset to page 1 when filtering
+        const search = current.toString();
+        const query = search ? `?${search}` : "";
+        router.replace(`/private/historico${query}`);
+      });
     },
-    [selectedStatus, availableStatus, searchParams, router]
+    [searchParams, router]
   );
-
-  const handleRemoveStatus = useCallback(() => {
-    setSelectedStatus([]);
-    setSelectStatusKey(Date.now());
-
-    startFilterTransition(() => {
-      const current = new URLSearchParams(Array.from(searchParams.entries()));
-      current.delete("status");
-      current.delete("page"); // Reset to page 1 when filtering
-      const search = current.toString();
-      const query = search ? `?${search}` : "";
-      router.replace(`/private/historico${query}`);
-    });
-  }, [searchParams, router]);
 
   const handleAddMonth = useCallback(
     (monthValue: string) => {
@@ -408,21 +364,10 @@ export function HistoryFiltersHeader({
             Status
           </h3>
           <SelectStatusHeader
-            status={availableStatus}
-            key={selectStatusKey}
-            onStatusSelect={handleAddStatus}
-            selectedStatus={selectedStatus}
+            value={selectedStatus}
+            onValueChange={handleStatusChange}
             loading={isFilterPending}
           />
-          {selectedStatus.length > 0 && (
-            <div className="mt-4">
-              <SelectedStatus
-                selectedStatus={selectedStatus}
-                onRemoveStatus={handleRemoveStatus}
-                loading={isFilterPending}
-              />
-            </div>
-          )}
         </div>
         <div>
           <h3 className="text-white font-poppins font-semibold text-md mb-4">
@@ -473,11 +418,8 @@ export function HistoryFiltersHeader({
       selectedClasses,
       handleRemoveClass,
       handleClearAllClasses,
-      availableStatus,
-      selectStatusKey,
-      handleAddStatus,
       selectedStatus,
-      handleRemoveStatus,
+      handleStatusChange,
       availableMonths,
       selectMonthKey,
       handleAddMonth,
@@ -552,21 +494,10 @@ export function HistoryFiltersHeader({
               </div>
               <div className="flex flex-col md:items-start gap-3">
                 <SelectStatusHeader
-                  status={availableStatus}
-                  key={selectStatusKey}
-                  onStatusSelect={handleAddStatus}
-                  selectedStatus={selectedStatus}
+                  value={selectedStatus}
+                  onValueChange={handleStatusChange}
                   loading={isFilterPending}
                 />
-                {selectedStatus.length > 0 && (
-                  <div className="flex flex-row items-center flex-wrap">
-                    <SelectedStatus
-                      selectedStatus={selectedStatus}
-                      onRemoveStatus={handleRemoveStatus}
-                      loading={isFilterPending}
-                    />
-                  </div>
-                )}
               </div>
               <div className="flex flex-col md:items-start gap-3">
                 <SelectMonthHeader

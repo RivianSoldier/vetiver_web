@@ -12,21 +12,37 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "./ui/spinner";
 
+const statusOptions = [
+  { value: "all", label: "Todos os status" },
+  { value: "Coletado", label: "Coletado" },
+  { value: "Não encontrado", label: "Não encontrado" },
+];
+
 interface SelectStatusHeaderProps {
-  status: { value: string; label: string }[];
-  onStatusSelect: (value: string) => void;
-  selectedStatus: { value: string; label: string }[];
+  value?: string;
+  onValueChange?: (value: string) => void;
   loading?: boolean;
 }
 
 export function SelectStatusHeader({
-  status,
-  onStatusSelect,
-  selectedStatus,
+  value,
+  onValueChange,
   loading = false,
 }: SelectStatusHeaderProps) {
+  const handleValueChange = (newValue: string) => {
+    if (newValue === "all") {
+      onValueChange?.("");
+    } else {
+      onValueChange?.(newValue);
+    }
+  };
+
   return (
-    <Select onValueChange={onStatusSelect} disabled={loading}>
+    <Select
+      value={value || "all"}
+      onValueChange={handleValueChange}
+      disabled={loading}
+    >
       <SelectTrigger className="w-full min-w-[180px] text-sm font-nunito font-bold cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
         {loading ? (
           <Spinner className="text-[#008D80]" />
@@ -37,14 +53,11 @@ export function SelectStatusHeader({
       <SelectContent className="bg-[#262626] border-2 border-[#404040]">
         <SelectGroup>
           <SelectLabel className="text-sm font-nunito">Status</SelectLabel>
-          {status.map((statusItem) => (
+          {statusOptions.map((statusItem) => (
             <SelectItem
               className="text-sm font-nunito cursor-pointer"
               key={statusItem.value}
               value={statusItem.value}
-              disabled={selectedStatus.some(
-                (selected) => selected.value === statusItem.value
-              )}
             >
               {statusItem.label}
             </SelectItem>
