@@ -18,7 +18,7 @@ export function LandingPageHeader() {
           className="h-9 md:h-10 w-32 md:w-40 rounded-full flex items-center justify-center bg-white text-black font-poppins font-bold text-md cursor-pointer transition-all duration-300 ease-in-out hover:scale-102 hover:brightness-110"
           type="submit"
         >
-          <Link href="/login">Lançar APP</Link>
+          <Link href="/login">Acessar</Link>
         </Button>
       </div>
     </div>

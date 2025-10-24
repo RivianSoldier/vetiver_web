@@ -51,11 +51,11 @@ export function HeaderButton({
       )}
 
       {mode === "outlined" && (
-        <div className="rounded-sm h-10 bg-gradient-to-r from-[#008D80] to-[#45BF55] p-[2px]">
+        <div className={`rounded-sm h-10 bg-gradient-to-r from-[#008D80] to-[#45BF55] p-[2px] ${isDisabled ? 'opacity-30' : 'opacity-100'}`}>
           <Button
             onClick={handleClick}
             disabled={isDisabled}
-            className="w-full bg-[#0d0d0d] rounded-sm hover:bg-[#262626] hover:brightness-105 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full bg-[#0d0d0d] rounded-sm hover:bg-[#262626] hover:brightness-105 cursor-pointer disabled:cursor-not-allowed"
           >
             <span className="flex items-center gap-2 bg-gradient-to-r from-[#008D80] to-[#45BF55] bg-clip-text text-transparent font-nunito font-bold text-sm">
               {isLoading ? <Spinner className="text-[#008D80]" /> : buttonIcon}{" "}

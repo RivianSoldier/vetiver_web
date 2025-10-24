@@ -91,7 +91,7 @@ export function LandingPageProducts() {
             </p>
           </div>
           <Image
-            src="/card4.png"
+            src="/card4.jpg"
             alt="Descrição da imagem"
             width={360}
             height={336}
@@ -113,7 +113,7 @@ export function LandingPageProducts() {
             </p>
           </div>
           <Image
-            src="/card5.png"
+            src="/card5.jpg"
             alt="Descrição da imagem"
             width={360}
             height={336}
@@ -134,7 +134,7 @@ export function LandingPageProducts() {
             </p>
           </div>
           <Image
-            src="/card6.png"
+            src="/card6.jpg"
             alt="Descrição da imagem"
             width={360}
             height={336}

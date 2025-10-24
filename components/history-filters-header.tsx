@@ -543,6 +543,7 @@ export function HistoryFiltersHeader({
                 <ArrowDownToLine className="w-6 h-6 text-[#008D80] " />
               }
               text="Meu histórico"
+              disabled={true}
             />
             <HeaderButton
               mode="outlined"
@@ -550,6 +551,7 @@ export function HistoryFiltersHeader({
                 <ArrowDownToLine className="w-6 h-6 text-[#008D80]" />
               }
               text="Histórico completo"
+              disabled={true}
             />
           </div>
         </div>

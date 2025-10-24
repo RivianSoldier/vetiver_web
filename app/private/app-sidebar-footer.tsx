@@ -13,8 +13,9 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { ChevronsUpDown, LogOut } from "lucide-react";
-import SignOut from "@/app/private/signout";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 type User = {
   email?: string;
@@ -22,6 +23,17 @@ type User = {
 
 export function AppSidebarFooter({ user }: { user: User }) {
   const { isMobile, state } = useSidebar();
+  const router = useRouter();
+  const supabase = createClient();
+
+  async function handleSignOut() {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Error signing out:", error);
+    } else {
+      router.push("/login");
+    }
+  }
 
   return (
     <SidebarMenu>
@@ -56,9 +68,12 @@ export function AppSidebarFooter({ user }: { user: User }) {
             align="end"
             className="w-[var(--radix-dropdown-menu-trigger-width)] border-none bg-[#404040] text-white"
           >
-            <DropdownMenuItem className="cursor-pointer focus:bg-gray-500/50">
+            <DropdownMenuItem 
+              onClick={handleSignOut}
+              className="cursor-pointer focus:bg-gray-500/50"
+            >
               <LogOut className="mr-2" />
-              <SignOut />
+              <span className="text-white font-nunito text-sm">Sair</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
