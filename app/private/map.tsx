@@ -130,7 +130,7 @@ export default function MapComponent({
           };
           setPosition(newPosition);
           setMapCenter(newPosition);
-          setMapKey(prev => prev + 1);
+          setMapKey((prev) => prev + 1);
         },
         (error) => {
           console.warn("Geolocation error:", error);
@@ -163,7 +163,7 @@ export default function MapComponent({
     : filteredByDistance;
 
   if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
-    throw new Error("Google Maps API key is missing.");
+    throw new Error("Google Maps API key is missing .");
   }
 
   return (
